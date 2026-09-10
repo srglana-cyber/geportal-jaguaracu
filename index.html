@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Geoportal de Jaguaraçu - MG | WebGIS Interativo</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Barra de Navegação Superior (Header) -->
+        <header id="navbar">
+            <div class="brand-container">
+                <button id="btn-toggle-sidebar" class="btn-nav" title="Abrir/Fechar Painel Lateral">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="brand-logo">
+                    <i class="fas fa-map-location-dot"></i>
+                </div>
+                <div class="brand-title">
+                    <span>GEOPORTAL JAGUARAÇU</span>
+                    <span class="brand-subtitle">Sistema de Informações Geográficas</span>
+                </div>
+            </div>
+
+            <!-- Pesquisa Rápida e Ações -->
+            <div class="navbar-actions">
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="text" id="input-search-map" placeholder="Buscar CAR, Rio, Geologia..." style="padding: 7px 32px 7px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; font-size: 0.82rem; outline: none; width: 220px;">
+                    <button id="btn-search-map" style="position: absolute; right: 8px; background: none; border: none; color: white; cursor: pointer; font-size: 0.85rem;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <button id="btn-reset-extent" class="btn-nav" title="Centralizar em Jaguaraçu">
+                    <i class="fas fa-crosshairs"></i> <span>Ver Município</span>
+                </button>
+
+                <button id="btn-nav-ruler" class="btn-nav" title="Medir Distância ou Área">
+                    <i class="fas fa-ruler-combined"></i> <span>Medir</span>
+                </button>
+
+                <button id="btn-nav-colaborar" class="btn-nav btn-colaborar">
+                    <i class="fas fa-hand-holding-heart"></i> <span>Geocolaboração</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Área Principal (Sidebar + Mapa) -->
+        <div id="main-content">
+            <!-- Sidebar Lateral Retrátil -->
+            <aside id="sidebar" class="">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">
+                        <i class="fas fa-sliders"></i> Painel de Controle
+                    </div>
+                    <button id="btn-close-sidebar" class="btn-close-sidebar">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Abas da Sidebar -->
+                <nav class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="camadas">
+                        <i class="fas fa-layer-group"></i> Camadas
+                    </button>
+                    <button class="tab-btn" data-tab="legenda">
+                        <i class="fas fa-list-check"></i> Legenda
+                    </button>
+                    <button class="tab-btn" data-tab="stats">
+                        <i class="fas fa-chart-pie"></i> Dados
+                    </button>
+                    <button class="tab-btn" data-tab="colaborar">
+                        <i class="fas fa-users-viewfinder"></i> Colaborar
+                    </button>
+                </nav>
+
+                <div class="sidebar-body">
+                    <!-- ABA 1: CAMADAS -->
+                    <div id="tab-camadas" class="tab-content active">
+                        <!-- Botão de Upload Direto de GeoJSON -->
+                        <div style="margin-bottom: 16px; background: #eff6ff; border: 1px dashed #3b82f6; border-radius: 8px; padding: 12px; text-align: center;">
+                            <input type="file" id="input-upload-geojson" accept=".geojson,.json" style="display: none;" multiple>
+                            <button id="btn-upload-geojson" class="btn-primary" style="background: #2563eb; font-size: 0.85rem; width: 100%;">
+                                <i class="fas fa-file-circle-plus"></i> Carregar Arquivo GeoJSON
+                            </button>
+                            <span style="font-size: 0.72rem; color: #1d4ed8; display: block; margin-top: 6px;">
+                                <i class="fas fa-hand-pointer"></i> Ou arraste e solte o arquivo `.geojson` direto sobre o mapa!
+                            </span>
+                        </div>
+
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">
+                            Ative ou desative as camadas geográficas e ajuste a transparência:
+                        </p>
+                        <p style="font-size: 0.72rem; color: #2563eb; margin-bottom: 12px; font-weight: 600;">
+                            <i class="fas fa-up-down-left-right"></i> Arraste as camadas para cima/baixo para alterar a sobreposição no mapa.
+                        </p>
+
+                        <!-- CAR -->
+                        <div class="layer-card" draggable="true" data-layer-id="car">
+                            <div class="layer-header">
+                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </div>
+                                <label class="layer-title-group" style="flex: 1;">
+                                    <input type="checkbox" class="layer-toggle" data-layer="car">
+                                    <span class="layer-name">Cadastro Ambiental Rural (CAR)</span>
+                                </label>
+                                <span class="layer-badge">Vetorial</span>
+                            </div>
+                            <div class="layer-controls">
+                                <span class="opacity-label">Opacidade:</span>
+                                <input type="range" class="opacity-slider" data-layer="car" min="0" max="1" step="0.1" value="0.7">
+                            </div>
+                            <div class="layer-style-options">
+                                <div class="style-item">
+                                    <span class="style-label">Linha:</span>
+                                    <input type="color" class="color-picker-stroke" data-layer="car" value="#ea580c" title="Cor da Linha">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Fundo:</span>
+                                    <input type="color" class="color-picker-fill" data-layer="car" value="#f97316" title="Cor de Preenchimento">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Traço:</span>
+                                    <select class="weight-selector" data-layer="car">
+                                        <option value="1">1px</option>
+                                        <option value="1.8" selected>1.8px</option>
+                                        <option value="3">3px</option>
+                                        <option value="5">5px</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Hidrografia -->
+                        <div class="layer-card" draggable="true" data-layer-id="hidrografia">
+                            <div class="layer-header">
+                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </div>
+                                <label class="layer-title-group" style="flex: 1;">
+                                    <input type="checkbox" class="layer-toggle" data-layer="hidrografia">
+                                    <span class="layer-name">Rede Hidrográfica e Rios</span>
+                                </label>
+                                <span class="layer-badge">Linhas</span>
+                            </div>
+                            <div class="layer-controls">
+                                <span class="opacity-label">Opacidade:</span>
+                                <input type="range" class="opacity-slider" data-layer="hidrografia" min="0" max="1" step="0.1" value="0.9">
+                            </div>
+                            <div class="layer-style-options">
+                                <div class="style-item">
+                                    <span class="style-label">Cor da Água:</span>
+                                    <input type="color" class="color-picker-stroke" data-layer="hidrografia" value="#38bdf8" title="Cor da Linha de Água">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Espessura:</span>
+                                    <select class="weight-selector" data-layer="hidrografia">
+                                        <option value="1">1px</option>
+                                        <option value="2" selected>2px</option>
+                                        <option value="3.5">3.5px</option>
+                                        <option value="5">5px</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Geologia -->
+                        <div class="layer-card" draggable="true" data-layer-id="geologia">
+                            <div class="layer-header">
+                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </div>
+                                <label class="layer-title-group" style="flex: 1;">
+                                    <input type="checkbox" class="layer-toggle" data-layer="geologia">
+                                    <span class="layer-name">Mapeamento Geológico</span>
+                                </label>
+                                <span class="layer-badge">Litologia</span>
+                            </div>
+                            <div class="layer-controls">
+                                <span class="opacity-label">Opacidade:</span>
+                                <input type="range" class="opacity-slider" data-layer="geologia" min="0" max="1" step="0.1" value="0.5">
+                            </div>
+                            <div class="layer-style-options">
+                                <div class="style-item">
+                                    <span class="style-label">Linha:</span>
+                                    <input type="color" class="color-picker-stroke" data-layer="geologia" value="#475569" title="Cor do Contorno">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Fundo Base:</span>
+                                    <input type="color" class="color-picker-fill" data-layer="geologia" value="#94a3b8" title="Cor de Preenchimento Base">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Traço:</span>
+                                    <select class="weight-selector" data-layer="geologia">
+                                        <option value="1" selected>1px</option>
+                                        <option value="2">2px</option>
+                                        <option value="3">3px</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Limite APA -->
+                        <div class="layer-card" draggable="true" data-layer-id="apa">
+                            <div class="layer-header">
+                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </div>
+                                <label class="layer-title-group" style="flex: 1;">
+                                    <input type="checkbox" class="layer-toggle" data-layer="apa">
+                                    <span class="layer-name">APA Jaguaraçu (Lei 555/98)</span>
+                                </label>
+                                <span class="layer-badge">Proteção</span>
+                            </div>
+                            <div class="layer-controls">
+                                <span class="opacity-label">Opacidade:</span>
+                                <input type="range" class="opacity-slider" data-layer="apa" min="0" max="1" step="0.1" value="0.4">
+                            </div>
+                            <div class="layer-style-options">
+                                <div class="style-item">
+                                    <span class="style-label">Linha:</span>
+                                    <input type="color" class="color-picker-stroke" data-layer="apa" value="#15803d" title="Cor da Linha da APA">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Fundo:</span>
+                                    <input type="color" class="color-picker-fill" data-layer="apa" value="#22c55e" title="Cor do Fundo da APA">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Traço:</span>
+                                    <select class="weight-selector" data-layer="apa">
+                                        <option value="1">1px</option>
+                                        <option value="2.5" selected>2.5px</option>
+                                        <option value="4">4px</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Máscara Municipal -->
+                        <div class="layer-card" draggable="true" data-layer-id="mascara">
+                            <div class="layer-header">
+                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
+                                    <i class="fas fa-grip-vertical"></i>
+                                </div>
+                                <label class="layer-title-group" style="flex: 1;">
+                                    <input type="checkbox" class="layer-toggle" data-layer="mascara" checked>
+                                    <span class="layer-name">Limite Municipal Jaguaraçu</span>
+                                </label>
+                                <span class="layer-badge">Fronteira</span>
+                            </div>
+                            <div class="layer-controls">
+                                <span class="opacity-label">Opacidade:</span>
+                                <input type="range" class="opacity-slider" data-layer="mascara" min="0" max="1" step="0.1" value="1.0">
+                            </div>
+                            <div class="layer-style-options">
+                                <div class="style-item">
+                                    <span class="style-label">Cor da Linha:</span>
+                                    <input type="color" class="color-picker-stroke" data-layer="mascara" value="#7e22ce" title="Cor da Linha do Limite">
+                                </div>
+                                <div class="style-item">
+                                    <span class="style-label">Espessura:</span>
+                                    <select class="weight-selector" data-layer="mascara">
+                                        <option value="1.5">1.5px</option>
+                                        <option value="3.5" selected>3.5px</option>
+                                        <option value="5">5px</option>
+                                        <option value="7">7px</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABA 2: LEGENDA -->
+                    <div id="tab-legenda" class="tab-content">
+                        <!-- Legenda CAR -->
+                        <div class="legend-section">
+                            <div class="legend-section-title"><i class="fas fa-tractor"></i> Imóveis CAR</div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(249, 115, 22, 0.4); border-color: #ea580c;"></div>
+                                <span>Aguardando Análise (AT)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(20, 184, 166, 0.4); border-color: #0d9488;"></div>
+                                <span>Analisado / Pendente (PE)</span>
+                            </div>
+                        </div>
+
+                        <!-- Legenda Hidrografia -->
+                        <div class="legend-section">
+                            <div class="legend-section-title"><i class="fas fa-water"></i> Hidrografia</div>
+                            <div class="legend-item">
+                                <div class="legend-symbol-line" style="background: #0284c7; height: 5px;"></div>
+                                <span>Rio Piracicaba (Drenagem Principal)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-symbol-line" style="background: #38bdf8; height: 2px;"></div>
+                                <span>Córregos e Tributários</span>
+                            </div>
+                        </div>
+
+                        <!-- Legenda Geologia -->
+                        <div class="legend-section">
+                            <div class="legend-section-title"><i class="fas fa-mountain"></i> Unidades Geológicas</div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(239, 68, 68, 0.5); border-color: #b91c1c;"></div>
+                                <span>Grupo Serra Negra (Litofácies Metavulcanossedimentar)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(168, 85, 247, 0.5); border-color: #6b21a8;"></div>
+                                <span>Grupo Dom Silvério (Xistos aluminosos)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(245, 158, 11, 0.5); border-color: #d97706;"></div>
+                                <span>Depósitos Aluviais (Sedimentos)</span>
+                            </div>
+                        </div>
+
+                        <!-- Legenda APA -->
+                        <div class="legend-section">
+                            <div class="legend-section-title"><i class="fas fa-tree"></i> Áreas de Proteção</div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(34, 197, 94, 0.2); border: 2px dashed #15803d;"></div>
+                                <span>APA Jaguaraçu (Área de Proteção Ambiental)</span>
+                            </div>
+                            <div class="legend-item">
+                                <div class="legend-symbol" style="background: rgba(168, 85, 247, 0.08); border: 2px dashed #7e22ce;"></div>
+                                <span>Limite Territorial do Município</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABA 3: ESTATÍSTICAS / EMENTA DADOS -->
+                    <div id="tab-stats" class="tab-content">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #ffedd5; color: #c2410c;">
+                                <i class="fas fa-tractor"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-car-count">--</span>
+                                <span class="stat-label">Imóveis Rurais Registrados (CAR)</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fef3c7; color: #b45309;">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-car-area">-- ha</span>
+                                <span class="stat-label">Área Total Mapeada em CAR</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="fas fa-water"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-hydro-count">--</span>
+                                <span class="stat-label">Trechos de Córregos e Drenagens</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #dcfce7; color: #15803d;">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">7.559 ha</span>
+                                <span class="stat-label">Área da APA Jaguaraçu</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABA 4: GEOCOLABORAÇÃO -->
+                    <div id="tab-colaborar" class="tab-content">
+                        <div class="colab-instructions">
+                            <i class="fas fa-lightbulb"></i> <b>GeoColaboração Cidadã</b><br>
+                            Colabore adicionando informações de campo, pontos turísticos, denúncias ou ocorrências no município.
+                        </div>
+
+                        <form id="form-colaboracao">
+                            <div class="form-group">
+                                <button type="button" id="btn-colab-mark-point" class="btn-primary" style="background: #4f46e5;">
+                                    <i class="fas fa-location-crosshairs"></i> Marcar Ponto no Mapa
+                                </button>
+                            </div>
+
+                            <div class="form-group" style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <label class="form-label">Latitude:</label>
+                                    <input type="text" id="colab-lat" class="form-control" placeholder="Clique no mapa" readonly required>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label">Longitude:</label>
+                                    <input type="text" id="colab-lng" class="form-control" placeholder="Clique no mapa" readonly required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Categoria da Ocorrência:</label>
+                                <select id="colab-category" class="form-control" required>
+                                    <option value="Erosão / Riscos">Erosão / Deslizamento / Risco</option>
+                                    <option value="Recursos Hídricos">Recursos Hídricos / Nascente</option>
+                                    <option value="Ponto Turístico">Ponto Turístico / Ecoturismo</option>
+                                    <option value="Denúncia Ambiental">Denúncia Ambiental / Alerta</option>
+                                    <option value="Infraestrutura Rural">Infraestrutura Rural / Ponte / Estrada</option>
+                                    <option value="Outro">Outra Informação Secundária</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Título da Informação:</label>
+                                <input type="text" id="colab-title" class="form-control" placeholder="Ex: Nascente preservada na comunidade" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Descrição Detalhada:</label>
+                                <textarea id="colab-description" class="form-control" placeholder="Descreva os detalhes observados..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Seu Nome / Instituição (opcional):</label>
+                                <input type="text" id="colab-author" class="form-control" placeholder="Ex: João da Silva">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Contato / E-mail (opcional):</label>
+                                <input type="email" id="colab-contact" class="form-control" placeholder="Ex: joao@email.com">
+                            </div>
+
+                            <button type="submit" class="btn-primary btn-success">
+                                <i class="fas fa-paper-plane"></i> Enviar Colaboração
+                            </button>
+                        </form>
+
+                        <div class="colab-list">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark);">Contribuições Registradas</h4>
+                                <button id="btn-colab-export" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: var(--accent-color); cursor: pointer;">
+                                    <i class="fas fa-download"></i> Baixar GeoJSON
+                                </button>
+                            </div>
+                            <div id="colab-items-container"></div>
+                        </div>
+                    </div>
+                </div>
+            </aside>
+
+            <!-- O Mapa Leaflet -->
+            <div id="map"></div>
+
+            <!-- Card de Basemaps Flutuante na Tela do Mapa (Canto Inferior Esquerdo) -->
+            <div style="position: absolute; bottom: 20px; left: 20px; z-index: 990;">
+                <div class="basemap-control">
+                    <div class="basemap-option active" data-basemap="satellite">
+                        <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/388/576" class="basemap-thumb" alt="Satélite">
+                        <span class="basemap-label">Satélite</span>
+                    </div>
+                    <div class="basemap-option" data-basemap="topo">
+                        <img src="https://a.tile.opentopomap.org/10/576/388.png" class="basemap-thumb" alt="Topográfico">
+                        <span class="basemap-label">Topográfico</span>
+                    </div>
+                    <div class="basemap-option" data-basemap="osm">
+                        <img src="https://a.tile.openstreetmap.org/10/576/388.png" class="basemap-thumb" alt="OpenStreetMap">
+                        <span class="basemap-label">OSM Brasil</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS CDN -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Dados Geográficos Embaraçados (Offline / Local File Protocol Ready) -->
+    <script src="js/data/mascara_jaguaracu.js"></script>
+    <script src="js/data/limite_APA.js"></script>
+    <script src="js/data/geologia.js"></script>
+    <script src="js/data/hidrografia.js"></script>
+    <script src="js/data/area_imoveis_CAR.js"></script>
+<script src="js/data/areas_prioritarias_conservacao.js"></script>
+<script src="js/data/circunscricoes_hidrograficas.js"></script>
+<script src="js/data/distritos.js"></script>
+<script src="js/data/erosao.js"></script>
+<script src="js/data/faces_logradouros.js"></script>
+<script src="js/data/geomorfologia.js"></script>
+<script src="js/data/nascentes.js"></script>
+
+    <!-- Módulo de Geocolaboração Cidadã -->
+    <script src="js/collaboration.js"></script>
+
+    <!-- Módulo de Medição de Distância e Área -->
+    <script src="js/measure.js"></script>
+
+    <!-- Aplicação Principal do WebGIS -->
+    <script src="js/app.js"></script>
+</body>
+</html>
