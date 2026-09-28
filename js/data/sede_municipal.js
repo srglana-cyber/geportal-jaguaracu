@@ -1,0 +1,9 @@
+﻿window.GEO_DATA_sede_municipal = {
+"type": "FeatureCollection",
+"name": "sede municipal",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "fid": 2638, "code_muni": 3135001.0, "name_muni": "Jaguaraçu", "code_state": "31", "abbrev_state": "MG", "code_region": "3", "name_region": "Sudeste", "year": "2010" }, "geometry": { "type": "Point", "coordinates": [ -42.752999059199915, -19.647072697442301 ] } }
+]
+}
+;

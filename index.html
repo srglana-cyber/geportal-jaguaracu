@@ -1,0 +1,362 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>Geoportal de Jaguaraçu - MG | WebGIS Interativo - Prof. Sérgio Lana</title>
+
+    <!-- Leaflet CSS -->
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
+    
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="app-container">
+        <!-- Barra de Navegação Superior (Header) -->
+        <header id="navbar">
+            <div class="brand-container">
+                <button id="btn-toggle-sidebar" class="btn-nav" title="Abrir/Fechar Painel Lateral">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="brand-logo">
+                    <i class="fas fa-map-location-dot"></i>
+                </div>
+                <div class="brand-title">
+                    <span>GEOPORTAL JAGUARAÇU</span>
+                    <span class="brand-subtitle">Sistema de Informações Geográficas</span>
+                </div>
+            </div>
+
+            <!-- Pesquisa Rápida e Ações -->
+            <div class="navbar-actions">
+                <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" class="author-badge" title="Acessar Currículo Lattes do Prof. Sérgio Lana (Clique para abrir)">
+                    <i class="fas fa-graduation-cap"></i> <span>Autor: <b>Prof. Sérgio Lana</b></span> <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem; opacity: 0.85;"></i>
+                </a>
+
+                <div style="position: relative; display: flex; align-items: center;">
+                    <input type="text" id="input-search-map" placeholder="Buscar CAR, Rio, Geologia..." style="padding: 7px 32px 7px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; font-size: 0.82rem; outline: none; width: 200px;">
+                    <button id="btn-search-map" style="position: absolute; right: 8px; background: none; border: none; color: white; cursor: pointer; font-size: 0.85rem;">
+                        <i class="fas fa-search"></i>
+                    </button>
+                </div>
+
+                <button id="btn-reset-extent" class="btn-nav" title="Centralizar em Jaguaraçu">
+                    <i class="fas fa-crosshairs"></i> <span>Ver Município</span>
+                </button>
+
+                <button id="btn-nav-ruler" class="btn-nav" title="Medir Distância ou Área">
+                    <i class="fas fa-ruler-combined"></i> <span>Medir</span>
+                </button>
+
+                <button id="btn-nav-colaborar" class="btn-nav btn-colaborar">
+                    <i class="fas fa-hand-holding-heart"></i> <span>Geocolaboração</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Área Principal (Sidebar + Mapa) -->
+        <div id="main-content">
+            <!-- Sidebar Lateral Retrátil -->
+            <aside id="sidebar" class="">
+                <div class="sidebar-header">
+                    <div class="sidebar-title">
+                        <i class="fas fa-sliders"></i> Painel de Controle
+                    </div>
+                    <button id="btn-close-sidebar" class="btn-close-sidebar">
+                        <i class="fas fa-xmark"></i>
+                    </button>
+                </div>
+
+                <!-- Abas da Sidebar -->
+                <nav class="sidebar-tabs">
+                    <button class="tab-btn active" data-tab="camadas">
+                        <i class="fas fa-layer-group"></i> Camadas
+                    </button>
+                    <button class="tab-btn" data-tab="legenda">
+                        <i class="fas fa-list-check"></i> Legenda
+                    </button>
+                    <button class="tab-btn" data-tab="stats">
+                        <i class="fas fa-chart-pie"></i> Dados
+                    </button>
+                    <button class="tab-btn" data-tab="colaborar">
+                        <i class="fas fa-users-viewfinder"></i> Colaborar
+                    </button>
+                </nav>
+
+                <div class="sidebar-body">
+                    <!-- ABA 1: CAMADAS -->
+                    <div id="tab-camadas" class="tab-content active">
+                        <!-- Botão de Upload Direto de GeoJSON -->
+                        <div style="margin-bottom: 16px; background: #eff6ff; border: 1px dashed #3b82f6; border-radius: 8px; padding: 12px; text-align: center;">
+                            <input type="file" id="input-upload-geojson" accept=".geojson,.json" style="display: none;" multiple>
+                            <button id="btn-upload-geojson" class="btn-primary" style="background: #2563eb; font-size: 0.85rem; width: 100%;">
+                                <i class="fas fa-file-circle-plus"></i> Carregar Arquivo GeoJSON
+                            </button>
+                            <span style="font-size: 0.72rem; color: #1d4ed8; display: block; margin-top: 6px;">
+                                <i class="fas fa-hand-pointer"></i> Ou arraste e solte o arquivo `.geojson` direto sobre o mapa!
+                            </span>
+                        </div>
+
+                        <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">
+                            Ative ou desative as camadas geográficas e ajuste a transparência:
+                        </p>
+                        <p style="font-size: 0.72rem; color: #2563eb; margin-bottom: 12px; font-weight: 600;">
+                            <i class="fas fa-up-down-left-right"></i> Arraste as camadas para cima/baixo para alterar a sobreposição no mapa.
+                        </p>
+
+                        <!-- Container Dinâmico de Camadas (24 camadas carregadas via app.js) -->
+                        <div id="layers-list-container"></div>
+                    </div>
+
+                    <!-- ABA 2: LEGENDA -->
+                    <div id="tab-legenda" class="tab-content">
+                        <!-- Banner de Créditos e Fontes Oficiais -->
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.72rem; color: #334155; line-height: 1.45;">
+                            <div style="font-weight: 700; color: #1e3a8a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-database"></i> Fontes &amp; Créditos Cartográficos
+                            </div>
+                            <b>Fonte das informações geoespaciais:</b> INDE (Infraestrutura Nacional de Dados Espaciais), IDE-SISEMA (Sistema Estadual de Meio Ambiente e Desenvolvimento Sustentável de MG) e Prefeitura Municipal de Jaguaraçu.<br>
+                            <b>Adaptação e Prototipação:</b> <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: 700; text-decoration: none;">Prof. Sérgio Lana</a>.
+                        </div>
+
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--primary-dark);">
+                                <i class="fas fa-list-check"></i> Convenções Cartográficas
+                            </span>
+                            <span style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">
+                                Atualização Dinâmica
+                            </span>
+                        </div>
+                        <div id="dynamic-legend-container">
+                            <!-- Legendas completas das 24 camadas e classes temáticas inseridas dinamicamente via js/app.js -->
+                        </div>
+                    </div>
+
+                    <!-- ABA 3: ESTATÍSTICAS / EMENTA DADOS -->
+                    <div id="tab-stats" class="tab-content">
+                        <!-- Card de Autoria Prof. Sérgio Lana com Link para Lattes -->
+                        <div class="stat-card" style="border-left: 4px solid #1e3a8a; background: #f0fdf4;">
+                            <div class="stat-icon" style="background: #dbeafe; color: #1e3a8a;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" style="font-size: 0.95rem; color: #0f172a;">Prof. Sérgio Lana</span>
+                                <span class="stat-label">Autor &amp; Concepção Técnico-Científica</span>
+                                <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" style="font-size: 0.72rem; color: #2563eb; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">
+                                    <i class="fas fa-external-link-alt"></i> Acessar Currículo Lattes
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Card de Fontes Cartográficas -->
+                        <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f8fafc;">
+                            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" style="font-size: 0.85rem; color: #0f172a;">Fontes Oficiais das Camadas</span>
+                                <span class="stat-label" style="line-height: 1.4; margin-top: 2px;">
+                                    INDE (Infraestrutura Nacional de Dados Espaciais), IDE-SISEMA (MG) e Prefeitura Municipal de Jaguaraçu.
+                                </span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #ffedd5; color: #c2410c;">
+                                <i class="fas fa-tractor"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-car-count">--</span>
+                                <span class="stat-label">Imóveis Rurais Registrados (CAR)</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #fef3c7; color: #b45309;">
+                                <i class="fas fa-chart-area"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-car-area">-- ha</span>
+                                <span class="stat-label">Área Total Mapeada em CAR</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="fas fa-water"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" id="stat-hydro-count">--</span>
+                                <span class="stat-label">Trechos de Córregos e Drenagens</span>
+                            </div>
+                        </div>
+
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background: #dcfce7; color: #15803d;">
+                                <i class="fas fa-shield-halved"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value">7.559 ha</span>
+                                <span class="stat-label">Área da APA Jaguaraçu</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ABA 4: GEOCOLABORAÇÃO -->
+                    <div id="tab-colaborar" class="tab-content">
+                        <div class="colab-instructions">
+                            <i class="fas fa-lightbulb"></i> <b>GeoColaboração Cidadã</b><br>
+                            Colabore adicionando informações de campo, pontos turísticos, denúncias ou ocorrências no município.
+                        </div>
+
+                        <!-- Informativo de Armazenamento Local / Nuvem -->
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; font-size: 0.72rem; color: #1e40af; line-height: 1.4;">
+                            <i class="fas fa-database"></i> <b>Onde os dados são salvos?</b><br>
+                            As colaborações ficam registradas na memória local do seu navegador (<i>LocalStorage</i>), mantendo-se salvas mesmo se fechar o navegador. Use o botão <b>"Baixar GeoJSON"</b> abaixo para exportar todas as feições para o SIG da prefeitura.
+                        </div>
+
+                        <form id="form-colaboracao">
+                            <div class="form-group">
+                                <button type="button" id="btn-colab-mark-point" class="btn-primary" style="background: #4f46e5;">
+                                    <i class="fas fa-location-crosshairs"></i> Marcar Ponto no Mapa
+                                </button>
+                            </div>
+
+                            <div class="form-group" style="display: flex; gap: 8px;">
+                                <div style="flex: 1;">
+                                    <label class="form-label">Latitude:</label>
+                                    <input type="text" id="colab-lat" class="form-control" placeholder="Clique no mapa" readonly required>
+                                </div>
+                                <div style="flex: 1;">
+                                    <label class="form-label">Longitude:</label>
+                                    <input type="text" id="colab-lng" class="form-control" placeholder="Clique no mapa" readonly required>
+                                </div>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Categoria da Ocorrência:</label>
+                                <select id="colab-category" class="form-control" required>
+                                    <option value="Erosão / Riscos">Erosão / Deslizamento / Risco</option>
+                                    <option value="Recursos Hídricos">Recursos Hídricos / Nascente</option>
+                                    <option value="Ponto Turístico">Ponto Turístico / Ecoturismo</option>
+                                    <option value="Denúncia Ambiental">Denúncia Ambiental / Alerta</option>
+                                    <option value="Infraestrutura Rural">Infraestrutura Rural / Ponte / Estrada</option>
+                                    <option value="Outro">Outra Informação Secundária</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Título da Informação:</label>
+                                <input type="text" id="colab-title" class="form-control" placeholder="Ex: Nascente preservada na comunidade" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Descrição Detalhada:</label>
+                                <textarea id="colab-description" class="form-control" placeholder="Descreva os detalhes observados..." required></textarea>
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Seu Nome / Instituição (opcional):</label>
+                                <input type="text" id="colab-author" class="form-control" placeholder="Ex: João da Silva">
+                            </div>
+
+                            <div class="form-group">
+                                <label class="form-label">Contato / E-mail (opcional):</label>
+                                <input type="email" id="colab-contact" class="form-control" placeholder="Ex: joao@email.com">
+                            </div>
+
+                            <button type="submit" class="btn-primary btn-success">
+                                <i class="fas fa-paper-plane"></i> Enviar Colaboração
+                            </button>
+                        </form>
+
+                        <div class="colab-list">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                <h4 style="font-size: 0.85rem; font-weight: 700; color: var(--primary-dark);">Contribuições Registradas</h4>
+                                <button id="btn-colab-export" style="background: none; border: 1px solid var(--border-color); padding: 4px 8px; border-radius: 4px; font-size: 0.75rem; color: var(--accent-color); cursor: pointer;">
+                                    <i class="fas fa-download"></i> Baixar GeoJSON
+                                </button>
+                            </div>
+                            <div id="colab-items-container"></div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Rodapé da Sidebar: Crédito ao Professor Sérgio Lana com Link para Lattes -->
+                <div class="sidebar-footer">
+                    <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" class="author-credit-link" title="Acessar Currículo Lattes do Prof. Sérgio Lana (Clique para abrir)">
+                        <div class="author-credit-box">
+                            <i class="fas fa-graduation-cap"></i>
+                            <div style="flex: 1;">
+                                <span class="credit-label">Autoria do Geoportal</span>
+                                <span class="credit-name">Professor Sérgio Lana</span>
+                            </div>
+                            <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.75rem; color: #2563eb; opacity: 0.8;"></i>
+                        </div>
+                    </a>
+                </div>
+            </aside>
+
+            <!-- O Mapa Leaflet -->
+            <div id="map"></div>
+
+            <!-- Card de Basemaps Flutuante na Tela do Mapa (Canto Inferior Direito) -->
+            <div style="position: absolute; bottom: 25px; right: 20px; z-index: 990;">
+                <div class="basemap-control">
+                    <div class="basemap-option active" data-basemap="satellite" title="Imagem de Satélite de Alta Resolução">
+                        <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/388/576" class="basemap-thumb" alt="Satélite">
+                        <span class="basemap-label">Satélite</span>
+                    </div>
+                    <div class="basemap-option" data-basemap="topo" title="Mapa Topográfico com Curvas de Nível">
+                        <img src="https://a.tile.opentopomap.org/10/576/388.png" class="basemap-thumb" alt="Topográfico">
+                        <span class="basemap-label">Topográfico</span>
+                    </div>
+                    <div class="basemap-option" data-basemap="osm" title="Mapa de Ruas e Estradas OpenStreetMap">
+                        <img src="https://a.basemaps.cartocdn.com/rastertiles/voyager/10/576/388.png" class="basemap-thumb" alt="OpenStreetMap">
+                        <span class="basemap-label">Ruas (OSM)</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Leaflet JS CDN -->
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+    <!-- Dados Geográficos (21 Camadas Oficiais de Jaguaraçu) -->
+    <script src="js/data/mascara_jaguaracu.js"></script>
+    <script src="js/data/distritos.js"></script>
+    <script src="js/data/setores_censitarios.js"></script>
+    <script src="js/data/sede_municipal.js"></script>
+    <script src="js/data/estabelecimento_saude.js"></script>
+    <script src="js/data/area_imoveis_CAR.js"></script>
+    <script src="js/data/limite_APA.js"></script>
+    <script src="js/data/areas_prioritarias_conservacao.js"></script>
+    <script src="js/data/vegetacao.js"></script>
+    <script src="js/data/pedologia.js"></script>
+    <script src="js/data/geomorfologia.js"></script>
+    <script src="js/data/geologia.js"></script>
+    <script src="js/data/erosao.js"></script>
+    <script src="js/data/circunscricoes_hidrograficas.js"></script>
+    <script src="js/data/hidrografia.js"></script>
+    <script src="js/data/nascentes.js"></script>
+    <script src="js/data/rodovia_federal.js"></script>
+    <script src="js/data/rodovias.js"></script>
+    <script src="js/data/estradas_municipais.js"></script>
+    <script src="js/data/faces_logradouros.js"></script>
+    <script src="js/data/cicloturismo.js"></script>
+
+    <!-- Módulo de Geocolaboração Cidadã -->
+    <script src="js/collaboration.js"></script>
+
+    <!-- Módulo de Medição de Distância e Área -->
+    <script src="js/measure.js"></script>
+
+    <!-- Aplicação Principal do WebGIS -->
+    <script src="js/app.js"></script>
+</body>
+</html>
