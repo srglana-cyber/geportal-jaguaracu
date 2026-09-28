@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "name": "geoportal-jaguaracu",
+  "cleanUrls": true,
+  "routes": [
+    {
+      "src": "/(.*)",
+      "dest": "/$1"
+    }
+  ]
+}

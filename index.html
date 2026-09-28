@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Geoportal de Jaguaraçu - MG | WebGIS Interativo</title>
+    <title>Geoportal de Jaguaraçu - MG | WebGIS Interativo - Prof. Sérgio Lana</title>
 
     <!-- Leaflet CSS -->
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin=""/>
@@ -33,8 +33,12 @@
 
             <!-- Pesquisa Rápida e Ações -->
             <div class="navbar-actions">
+                <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" class="author-badge" title="Acessar Currículo Lattes do Prof. Sérgio Lana (Clique para abrir)">
+                    <i class="fas fa-graduation-cap"></i> <span>Autor: <b>Prof. Sérgio Lana</b></span> <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.7rem; opacity: 0.85;"></i>
+                </a>
+
                 <div style="position: relative; display: flex; align-items: center;">
-                    <input type="text" id="input-search-map" placeholder="Buscar CAR, Rio, Geologia..." style="padding: 7px 32px 7px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; font-size: 0.82rem; outline: none; width: 220px;">
+                    <input type="text" id="input-search-map" placeholder="Buscar CAR, Rio, Geologia..." style="padding: 7px 32px 7px 12px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.3); background: rgba(255,255,255,0.15); color: white; font-size: 0.82rem; outline: none; width: 200px;">
                     <button id="btn-search-map" style="position: absolute; right: 8px; background: none; border: none; color: white; cursor: pointer; font-size: 0.85rem;">
                         <i class="fas fa-search"></i>
                     </button>
@@ -104,243 +108,63 @@
                             <i class="fas fa-up-down-left-right"></i> Arraste as camadas para cima/baixo para alterar a sobreposição no mapa.
                         </p>
 
-                        <!-- CAR -->
-                        <div class="layer-card" draggable="true" data-layer-id="car">
-                            <div class="layer-header">
-                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </div>
-                                <label class="layer-title-group" style="flex: 1;">
-                                    <input type="checkbox" class="layer-toggle" data-layer="car">
-                                    <span class="layer-name">Cadastro Ambiental Rural (CAR)</span>
-                                </label>
-                                <span class="layer-badge">Vetorial</span>
-                            </div>
-                            <div class="layer-controls">
-                                <span class="opacity-label">Opacidade:</span>
-                                <input type="range" class="opacity-slider" data-layer="car" min="0" max="1" step="0.1" value="0.7">
-                            </div>
-                            <div class="layer-style-options">
-                                <div class="style-item">
-                                    <span class="style-label">Linha:</span>
-                                    <input type="color" class="color-picker-stroke" data-layer="car" value="#ea580c" title="Cor da Linha">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Fundo:</span>
-                                    <input type="color" class="color-picker-fill" data-layer="car" value="#f97316" title="Cor de Preenchimento">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Traço:</span>
-                                    <select class="weight-selector" data-layer="car">
-                                        <option value="1">1px</option>
-                                        <option value="1.8" selected>1.8px</option>
-                                        <option value="3">3px</option>
-                                        <option value="5">5px</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Hidrografia -->
-                        <div class="layer-card" draggable="true" data-layer-id="hidrografia">
-                            <div class="layer-header">
-                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </div>
-                                <label class="layer-title-group" style="flex: 1;">
-                                    <input type="checkbox" class="layer-toggle" data-layer="hidrografia">
-                                    <span class="layer-name">Rede Hidrográfica e Rios</span>
-                                </label>
-                                <span class="layer-badge">Linhas</span>
-                            </div>
-                            <div class="layer-controls">
-                                <span class="opacity-label">Opacidade:</span>
-                                <input type="range" class="opacity-slider" data-layer="hidrografia" min="0" max="1" step="0.1" value="0.9">
-                            </div>
-                            <div class="layer-style-options">
-                                <div class="style-item">
-                                    <span class="style-label">Cor da Água:</span>
-                                    <input type="color" class="color-picker-stroke" data-layer="hidrografia" value="#38bdf8" title="Cor da Linha de Água">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Espessura:</span>
-                                    <select class="weight-selector" data-layer="hidrografia">
-                                        <option value="1">1px</option>
-                                        <option value="2" selected>2px</option>
-                                        <option value="3.5">3.5px</option>
-                                        <option value="5">5px</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Geologia -->
-                        <div class="layer-card" draggable="true" data-layer-id="geologia">
-                            <div class="layer-header">
-                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </div>
-                                <label class="layer-title-group" style="flex: 1;">
-                                    <input type="checkbox" class="layer-toggle" data-layer="geologia">
-                                    <span class="layer-name">Mapeamento Geológico</span>
-                                </label>
-                                <span class="layer-badge">Litologia</span>
-                            </div>
-                            <div class="layer-controls">
-                                <span class="opacity-label">Opacidade:</span>
-                                <input type="range" class="opacity-slider" data-layer="geologia" min="0" max="1" step="0.1" value="0.5">
-                            </div>
-                            <div class="layer-style-options">
-                                <div class="style-item">
-                                    <span class="style-label">Linha:</span>
-                                    <input type="color" class="color-picker-stroke" data-layer="geologia" value="#475569" title="Cor do Contorno">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Fundo Base:</span>
-                                    <input type="color" class="color-picker-fill" data-layer="geologia" value="#94a3b8" title="Cor de Preenchimento Base">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Traço:</span>
-                                    <select class="weight-selector" data-layer="geologia">
-                                        <option value="1" selected>1px</option>
-                                        <option value="2">2px</option>
-                                        <option value="3">3px</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Limite APA -->
-                        <div class="layer-card" draggable="true" data-layer-id="apa">
-                            <div class="layer-header">
-                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </div>
-                                <label class="layer-title-group" style="flex: 1;">
-                                    <input type="checkbox" class="layer-toggle" data-layer="apa">
-                                    <span class="layer-name">APA Jaguaraçu (Lei 555/98)</span>
-                                </label>
-                                <span class="layer-badge">Proteção</span>
-                            </div>
-                            <div class="layer-controls">
-                                <span class="opacity-label">Opacidade:</span>
-                                <input type="range" class="opacity-slider" data-layer="apa" min="0" max="1" step="0.1" value="0.4">
-                            </div>
-                            <div class="layer-style-options">
-                                <div class="style-item">
-                                    <span class="style-label">Linha:</span>
-                                    <input type="color" class="color-picker-stroke" data-layer="apa" value="#15803d" title="Cor da Linha da APA">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Fundo:</span>
-                                    <input type="color" class="color-picker-fill" data-layer="apa" value="#22c55e" title="Cor do Fundo da APA">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Traço:</span>
-                                    <select class="weight-selector" data-layer="apa">
-                                        <option value="1">1px</option>
-                                        <option value="2.5" selected>2.5px</option>
-                                        <option value="4">4px</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Máscara Municipal -->
-                        <div class="layer-card" draggable="true" data-layer-id="mascara">
-                            <div class="layer-header">
-                                <div class="drag-handle" title="Clique e arraste para reordenar esta camada">
-                                    <i class="fas fa-grip-vertical"></i>
-                                </div>
-                                <label class="layer-title-group" style="flex: 1;">
-                                    <input type="checkbox" class="layer-toggle" data-layer="mascara" checked>
-                                    <span class="layer-name">Limite Municipal Jaguaraçu</span>
-                                </label>
-                                <span class="layer-badge">Fronteira</span>
-                            </div>
-                            <div class="layer-controls">
-                                <span class="opacity-label">Opacidade:</span>
-                                <input type="range" class="opacity-slider" data-layer="mascara" min="0" max="1" step="0.1" value="1.0">
-                            </div>
-                            <div class="layer-style-options">
-                                <div class="style-item">
-                                    <span class="style-label">Cor da Linha:</span>
-                                    <input type="color" class="color-picker-stroke" data-layer="mascara" value="#7e22ce" title="Cor da Linha do Limite">
-                                </div>
-                                <div class="style-item">
-                                    <span class="style-label">Espessura:</span>
-                                    <select class="weight-selector" data-layer="mascara">
-                                        <option value="1.5">1.5px</option>
-                                        <option value="3.5" selected>3.5px</option>
-                                        <option value="5">5px</option>
-                                        <option value="7">7px</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
+                        <!-- Container Dinâmico de Camadas (24 camadas carregadas via app.js) -->
+                        <div id="layers-list-container"></div>
                     </div>
 
                     <!-- ABA 2: LEGENDA -->
                     <div id="tab-legenda" class="tab-content">
-                        <!-- Legenda CAR -->
-                        <div class="legend-section">
-                            <div class="legend-section-title"><i class="fas fa-tractor"></i> Imóveis CAR</div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(249, 115, 22, 0.4); border-color: #ea580c;"></div>
-                                <span>Aguardando Análise (AT)</span>
+                        <!-- Banner de Créditos e Fontes Oficiais -->
+                        <div style="background: #f8fafc; border: 1px solid #cbd5e1; border-radius: 8px; padding: 10px 12px; margin-bottom: 14px; font-size: 0.72rem; color: #334155; line-height: 1.45;">
+                            <div style="font-weight: 700; color: #1e3a8a; margin-bottom: 4px; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-database"></i> Fontes &amp; Créditos Cartográficos
                             </div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(20, 184, 166, 0.4); border-color: #0d9488;"></div>
-                                <span>Analisado / Pendente (PE)</span>
-                            </div>
+                            <b>Fonte das informações geoespaciais:</b> INDE (Infraestrutura Nacional de Dados Espaciais), IDE-SISEMA (Sistema Estadual de Meio Ambiente e Desenvolvimento Sustentável de MG) e Prefeitura Municipal de Jaguaraçu.<br>
+                            <b>Adaptação e Prototipação:</b> <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" style="color: #2563eb; font-weight: 700; text-decoration: none;">Prof. Sérgio Lana</a>.
                         </div>
 
-                        <!-- Legenda Hidrografia -->
-                        <div class="legend-section">
-                            <div class="legend-section-title"><i class="fas fa-water"></i> Hidrografia</div>
-                            <div class="legend-item">
-                                <div class="legend-symbol-line" style="background: #0284c7; height: 5px;"></div>
-                                <span>Rio Piracicaba (Drenagem Principal)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-symbol-line" style="background: #38bdf8; height: 2px;"></div>
-                                <span>Córregos e Tributários</span>
-                            </div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                            <span style="font-size: 0.78rem; font-weight: 700; color: var(--primary-dark);">
+                                <i class="fas fa-list-check"></i> Convenções Cartográficas
+                            </span>
+                            <span style="font-size: 0.7rem; color: var(--accent-color); font-weight: 600;">
+                                Atualização Dinâmica
+                            </span>
                         </div>
-
-                        <!-- Legenda Geologia -->
-                        <div class="legend-section">
-                            <div class="legend-section-title"><i class="fas fa-mountain"></i> Unidades Geológicas</div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(239, 68, 68, 0.5); border-color: #b91c1c;"></div>
-                                <span>Grupo Serra Negra (Litofácies Metavulcanossedimentar)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(168, 85, 247, 0.5); border-color: #6b21a8;"></div>
-                                <span>Grupo Dom Silvério (Xistos aluminosos)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(245, 158, 11, 0.5); border-color: #d97706;"></div>
-                                <span>Depósitos Aluviais (Sedimentos)</span>
-                            </div>
-                        </div>
-
-                        <!-- Legenda APA -->
-                        <div class="legend-section">
-                            <div class="legend-section-title"><i class="fas fa-tree"></i> Áreas de Proteção</div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(34, 197, 94, 0.2); border: 2px dashed #15803d;"></div>
-                                <span>APA Jaguaraçu (Área de Proteção Ambiental)</span>
-                            </div>
-                            <div class="legend-item">
-                                <div class="legend-symbol" style="background: rgba(168, 85, 247, 0.08); border: 2px dashed #7e22ce;"></div>
-                                <span>Limite Territorial do Município</span>
-                            </div>
+                        <div id="dynamic-legend-container">
+                            <!-- Legendas completas das 24 camadas e classes temáticas inseridas dinamicamente via js/app.js -->
                         </div>
                     </div>
 
                     <!-- ABA 3: ESTATÍSTICAS / EMENTA DADOS -->
                     <div id="tab-stats" class="tab-content">
+                        <!-- Card de Autoria Prof. Sérgio Lana com Link para Lattes -->
+                        <div class="stat-card" style="border-left: 4px solid #1e3a8a; background: #f0fdf4;">
+                            <div class="stat-icon" style="background: #dbeafe; color: #1e3a8a;">
+                                <i class="fas fa-user-graduate"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" style="font-size: 0.95rem; color: #0f172a;">Prof. Sérgio Lana</span>
+                                <span class="stat-label">Autor &amp; Concepção Técnico-Científica</span>
+                                <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" style="font-size: 0.72rem; color: #2563eb; text-decoration: none; font-weight: 700; display: inline-flex; align-items: center; gap: 4px; margin-top: 4px;">
+                                    <i class="fas fa-external-link-alt"></i> Acessar Currículo Lattes
+                                </a>
+                            </div>
+                        </div>
+
+                        <!-- Card de Fontes Cartográficas -->
+                        <div class="stat-card" style="border-left: 4px solid #0284c7; background: #f8fafc;">
+                            <div class="stat-icon" style="background: #e0f2fe; color: #0284c7;">
+                                <i class="fas fa-database"></i>
+                            </div>
+                            <div class="stat-info">
+                                <span class="stat-value" style="font-size: 0.85rem; color: #0f172a;">Fontes Oficiais das Camadas</span>
+                                <span class="stat-label" style="line-height: 1.4; margin-top: 2px;">
+                                    INDE (Infraestrutura Nacional de Dados Espaciais), IDE-SISEMA (MG) e Prefeitura Municipal de Jaguaraçu.
+                                </span>
+                            </div>
+                        </div>
+
                         <div class="stat-card">
                             <div class="stat-icon" style="background: #ffedd5; color: #c2410c;">
                                 <i class="fas fa-tractor"></i>
@@ -387,6 +211,12 @@
                         <div class="colab-instructions">
                             <i class="fas fa-lightbulb"></i> <b>GeoColaboração Cidadã</b><br>
                             Colabore adicionando informações de campo, pontos turísticos, denúncias ou ocorrências no município.
+                        </div>
+
+                        <!-- Informativo de Armazenamento Local / Nuvem -->
+                        <div style="background: #eff6ff; border: 1px solid #bfdbfe; border-radius: 6px; padding: 8px 10px; margin-bottom: 12px; font-size: 0.72rem; color: #1e40af; line-height: 1.4;">
+                            <i class="fas fa-database"></i> <b>Onde os dados são salvos?</b><br>
+                            As colaborações ficam registradas na memória local do seu navegador (<i>LocalStorage</i>), mantendo-se salvas mesmo se fechar o navegador. Use o botão <b>"Baixar GeoJSON"</b> abaixo para exportar todas as feições para o SIG da prefeitura.
                         </div>
 
                         <form id="form-colaboracao">
@@ -455,25 +285,39 @@
                         </div>
                     </div>
                 </div>
+
+                <!-- Rodapé da Sidebar: Crédito ao Professor Sérgio Lana com Link para Lattes -->
+                <div class="sidebar-footer">
+                    <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" class="author-credit-link" title="Acessar Currículo Lattes do Prof. Sérgio Lana (Clique para abrir)">
+                        <div class="author-credit-box">
+                            <i class="fas fa-graduation-cap"></i>
+                            <div style="flex: 1;">
+                                <span class="credit-label">Autoria do Geoportal</span>
+                                <span class="credit-name">Professor Sérgio Lana</span>
+                            </div>
+                            <i class="fas fa-arrow-up-right-from-square" style="font-size: 0.75rem; color: #2563eb; opacity: 0.8;"></i>
+                        </div>
+                    </a>
+                </div>
             </aside>
 
             <!-- O Mapa Leaflet -->
             <div id="map"></div>
 
-            <!-- Card de Basemaps Flutuante na Tela do Mapa (Canto Inferior Esquerdo) -->
-            <div style="position: absolute; bottom: 20px; left: 20px; z-index: 990;">
+            <!-- Card de Basemaps Flutuante na Tela do Mapa (Canto Inferior Direito) -->
+            <div style="position: absolute; bottom: 25px; right: 20px; z-index: 990;">
                 <div class="basemap-control">
-                    <div class="basemap-option active" data-basemap="satellite">
+                    <div class="basemap-option active" data-basemap="satellite" title="Imagem de Satélite de Alta Resolução">
                         <img src="https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/10/388/576" class="basemap-thumb" alt="Satélite">
                         <span class="basemap-label">Satélite</span>
                     </div>
-                    <div class="basemap-option" data-basemap="topo">
+                    <div class="basemap-option" data-basemap="topo" title="Mapa Topográfico com Curvas de Nível">
                         <img src="https://a.tile.opentopomap.org/10/576/388.png" class="basemap-thumb" alt="Topográfico">
                         <span class="basemap-label">Topográfico</span>
                     </div>
-                    <div class="basemap-option" data-basemap="osm">
-                        <img src="https://a.tile.openstreetmap.org/10/576/388.png" class="basemap-thumb" alt="OpenStreetMap">
-                        <span class="basemap-label">OSM Brasil</span>
+                    <div class="basemap-option" data-basemap="osm" title="Mapa de Ruas e Estradas OpenStreetMap">
+                        <img src="https://a.basemaps.cartocdn.com/rastertiles/voyager/10/576/388.png" class="basemap-thumb" alt="OpenStreetMap">
+                        <span class="basemap-label">Ruas (OSM)</span>
                     </div>
                 </div>
             </div>
@@ -483,19 +327,28 @@
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Dados Geográficos Embaraçados (Offline / Local File Protocol Ready) -->
+    <!-- Dados Geográficos (21 Camadas Oficiais de Jaguaraçu) -->
     <script src="js/data/mascara_jaguaracu.js"></script>
-    <script src="js/data/limite_APA.js"></script>
-    <script src="js/data/geologia.js"></script>
-    <script src="js/data/hidrografia.js"></script>
+    <script src="js/data/distritos.js"></script>
+    <script src="js/data/setores_censitarios.js"></script>
+    <script src="js/data/sede_municipal.js"></script>
+    <script src="js/data/estabelecimento_saude.js"></script>
     <script src="js/data/area_imoveis_CAR.js"></script>
-<script src="js/data/areas_prioritarias_conservacao.js"></script>
-<script src="js/data/circunscricoes_hidrograficas.js"></script>
-<script src="js/data/distritos.js"></script>
-<script src="js/data/erosao.js"></script>
-<script src="js/data/faces_logradouros.js"></script>
-<script src="js/data/geomorfologia.js"></script>
-<script src="js/data/nascentes.js"></script>
+    <script src="js/data/limite_APA.js"></script>
+    <script src="js/data/areas_prioritarias_conservacao.js"></script>
+    <script src="js/data/vegetacao.js"></script>
+    <script src="js/data/pedologia.js"></script>
+    <script src="js/data/geomorfologia.js"></script>
+    <script src="js/data/geologia.js"></script>
+    <script src="js/data/erosao.js"></script>
+    <script src="js/data/circunscricoes_hidrograficas.js"></script>
+    <script src="js/data/hidrografia.js"></script>
+    <script src="js/data/nascentes.js"></script>
+    <script src="js/data/rodovia_federal.js"></script>
+    <script src="js/data/rodovias.js"></script>
+    <script src="js/data/estradas_municipais.js"></script>
+    <script src="js/data/faces_logradouros.js"></script>
+    <script src="js/data/cicloturismo.js"></script>
 
     <!-- Módulo de Geocolaboração Cidadã -->
     <script src="js/collaboration.js"></script>
