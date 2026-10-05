@@ -677,15 +677,27 @@ document.addEventListener('DOMContentLoaded', () => {
     let layerMascaraRef = null;
 
     // --------------------------------------------------------------------------
-    // 6. Centralização Robusta do Município de Jaguaraçu
+    // 6. Centralização Robusta do Município de Jaguaraçu (Compensa o Painel de Controle)
     // --------------------------------------------------------------------------
     function fitMunicipio(animate = false) {
         if (!layerMascaraRef) return;
         map.invalidateSize();
-        // Ajusta os limites visíveis garantindo que toda a fronteira do município fique visível
+
+        const sidebarEl = document.getElementById('sidebar');
+        const isSidebarVisible = sidebarEl && !sidebarEl.classList.contains('collapsed') && window.innerWidth > 768;
+        const sidebarWidth = isSidebarVisible ? (sidebarEl.offsetWidth || 380) : 0;
+
+        // Compensa a largura do painel lateral para que o município fique perfeitamente centralizado na área visível
+        const leftPad = sidebarWidth + 40;
+        const rightPad = 40;
+        const topPad = 35;
+        const bottomPad = 50;
+
         map.fitBounds(layerMascaraRef.getBounds(), {
-            padding: [30, 30],
-            animate: animate
+            paddingTopLeft: [leftPad, topPad],
+            paddingBottomRight: [rightPad, bottomPad],
+            animate: animate,
+            maxZoom: 14
         });
     }
 
@@ -1654,8 +1666,9 @@ document.addEventListener('DOMContentLoaded', () => {
         window.measureManager = new GeoMeasureManager(map);
     }
 
-    // Executar centralização inicial automática com atraso seguro para renderização do layout
+    // Executar centralização inicial automática com compensação do painel lateral
     fitMunicipio(false);
     setTimeout(() => fitMunicipio(false), 300);
+    setTimeout(() => fitMunicipio(false), 600);
     window.addEventListener('resize', () => fitMunicipio(false));
 });
