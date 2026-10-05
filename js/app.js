@@ -41,12 +41,6 @@ document.addEventListener('DOMContentLoaded', () => {
         topo: L.tileLayer('https://{s}.tile.opentopomap.org/{z}/{x}/{y}.png', {
             maxZoom: 17,
             attribution: 'Map data: &copy; OpenStreetMap contributors, SRTM | Autoria: Prof. Sérgio Lana'
-        }),
-
-        osm: L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
-            maxZoom: 19,
-            subdomains: 'abcd',
-            attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a> &copy; <a href="https://carto.com/attributions" target="_blank">CARTO</a> | Geoportal Jaguaraçu'
         })
     };
 
@@ -358,7 +352,61 @@ document.addEventListener('DOMContentLoaded', () => {
     };
 
     // --------------------------------------------------------------------------
-    // 5. Configuração Centralizada das 21 Camadas Geográficas
+    // 4.1. Definição Visual das Variáveis para Camadas de Pontos (Símbolos Coerentes)
+    // --------------------------------------------------------------------------
+    const POINT_LAYER_ICONS = {
+        sede_municipal: {
+            icon: 'fa-landmark',
+            size: [28, 28],
+            className: 'point-sede_municipal',
+            color: '#9333ea',
+            fillColor: '#581c87',
+            desc: 'Sede Administrativa e Marco Municipal'
+        },
+        estabelecimento_saude: {
+            icon: 'fa-plus',
+            size: [24, 24],
+            className: 'point-estabelecimento_saude',
+            color: '#ef4444',
+            fillColor: '#991b1b',
+            desc: 'Unidades de Saúde e Atendimento'
+        },
+        nascentes: {
+            icon: 'fa-droplet',
+            size: [20, 20],
+            className: 'point-nascentes',
+            color: '#38bdf8',
+            fillColor: '#0284c7',
+            desc: 'Olhos d\'Água e Mananciais Hídricos'
+        },
+        atrativos_turisticos: {
+            icon: 'fa-camera',
+            size: [24, 24],
+            className: 'point-atrativos_turisticos',
+            color: '#f59e0b',
+            fillColor: '#b45309',
+            desc: 'Cachoeiras, Mirantes e Patrimônio Cultural'
+        },
+        escolas: {
+            icon: 'fa-graduation-cap',
+            size: [24, 24],
+            className: 'point-escolas',
+            color: '#6366f1',
+            fillColor: '#3730a3',
+            desc: 'Escolas e Unidades Educacionais'
+        },
+        propriedades_rurais: {
+            icon: 'fa-tractor',
+            size: [24, 24],
+            className: 'point-propriedades_rurais',
+            color: '#22c55e',
+            fillColor: '#15803d',
+            desc: 'Propriedades e Fazendas Rurais'
+        }
+    };
+
+    // --------------------------------------------------------------------------
+    // 5. Configuração Centralizada das 24 Camadas Geográficas
     // --------------------------------------------------------------------------
     const LAYERS_CONFIG = [
         {
@@ -569,7 +617,7 @@ document.addEventListener('DOMContentLoaded', () => {
             badge: 'Sede',
             geomType: 'point',
             active: false,
-            style: { color: '#ffffff', fillColor: '#b91c1c', radius: 8, weight: 2.5 },
+            style: { color: '#fde047', fillColor: '#9333ea', radius: 8, weight: 2.5 },
             baseZIndex: 580
         },
         {
@@ -591,6 +639,36 @@ document.addEventListener('DOMContentLoaded', () => {
             active: false,
             style: { color: '#ffffff', fillColor: '#0284c7', radius: 5.5, weight: 1.8 },
             baseZIndex: 600
+        },
+        {
+            id: 'atrativos_turisticos',
+            name: 'Atrativos Turísticos e Culturais',
+            varName: 'GEO_DATA_atrativos_turisticos',
+            badge: 'Turismo',
+            geomType: 'point',
+            active: false,
+            style: { color: '#ffffff', fillColor: '#d97706', radius: 7, weight: 2 },
+            baseZIndex: 610
+        },
+        {
+            id: 'escolas',
+            name: 'Escolas e Unidades Educacionais',
+            varName: 'GEO_DATA_escolas',
+            badge: 'Educação',
+            geomType: 'point',
+            active: false,
+            style: { color: '#ffffff', fillColor: '#4f46e5', radius: 7, weight: 2 },
+            baseZIndex: 620
+        },
+        {
+            id: 'propriedades_rurais',
+            name: 'Propriedades Rurais Mapeadas',
+            varName: 'GEO_DATA_propriedades_rurais',
+            badge: 'Fazendas',
+            geomType: 'point',
+            active: false,
+            style: { color: '#ffffff', fillColor: '#15803d', radius: 6.5, weight: 2 },
+            baseZIndex: 605
         }
     ];
 
@@ -715,14 +793,22 @@ document.addEventListener('DOMContentLoaded', () => {
             style: (feature) => getFeatureStyle(cfg, feature),
             pointToLayer: (feature, latlng) => {
                 if (cfg.geomType === 'point') {
-                    return L.circleMarker(latlng, {
+                    const iconDef = POINT_LAYER_ICONS[cfg.id] || {
+                        icon: 'fa-location-dot',
+                        size: [24, 24],
+                        className: 'point-default'
+                    };
+                    const sz = iconDef.size || [24, 24];
+                    const customIcon = L.divIcon({
+                        className: `gis-point-marker ${iconDef.className || ''}`,
+                        html: `<i class="fas ${iconDef.icon}"></i>`,
+                        iconSize: sz,
+                        iconAnchor: [sz[0] / 2, sz[1] / 2],
+                        popupAnchor: [0, -sz[1] / 2]
+                    });
+                    return L.marker(latlng, {
                         pane: paneName,
-                        radius: cfg.style.radius || 6,
-                        fillColor: cfg.style.fillColor || cfg.style.color,
-                        color: cfg.style.color || '#ffffff',
-                        weight: cfg.style.weight || 2,
-                        opacity: cfg.style.opacity || 1,
-                        fillOpacity: cfg.style.fillOpacity || 0.9
+                        icon: customIcon
                     });
                 }
             },
@@ -844,9 +930,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
         LAYERS_CONFIG.forEach(cfg => {
             const isLayerActive = map.hasLayer(layersGroup[cfg.id]);
-            const statusBadge = isLayerActive 
-                ? '<span style="color: #15803d; background: #dcfce7; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Ativa no Mapa</span>'
-                : '<span style="color: #64748b; background: #f1f5f9; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px;">Inativa</span>';
+            // Quando a camada está desabilitada, sua legenda correspondente também é ocultada
+            if (!isLayerActive) return;
+
+            const statusBadge = '<span style="color: #15803d; background: #dcfce7; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Ativa</span>';
 
             const tCfg = THEMATIC_CONFIG[cfg.id];
 
@@ -912,7 +999,15 @@ document.addEventListener('DOMContentLoaded', () => {
                     `;
                 }
             } else if (cfg.geomType === 'point') {
-                // Legenda para pontos (Sede, Saúde, Nascentes)
+                // Legenda diferenciada para pontos com ícones temáticos
+                const iconDef = POINT_LAYER_ICONS[cfg.id] || {
+                    icon: 'fa-location-dot',
+                    className: 'point-default',
+                    color: cfg.style.color || '#ffffff',
+                    fillColor: cfg.style.fillColor || '#2563eb',
+                    desc: cfg.name
+                };
+
                 html += `
                     <div class="legend-section" style="margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
                         <div class="legend-section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -920,9 +1015,14 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${statusBadge}
                         </div>
                         <div style="padding-left: 6px;">
-                            <div class="legend-item">
-                                <div style="width: 14px; height: 14px; border-radius: 50%; background: ${cfg.style.fillColor}; border: 2px solid ${cfg.style.color}; margin-right: 8px;"></div>
-                                <span style="font-size: 0.75rem; color: #334155;">${cfg.name}</span>
+                            <div class="legend-item" style="display: flex; align-items: center; gap: 8px;">
+                                <div class="gis-point-marker ${iconDef.className}" style="width: 24px; height: 24px; font-size: 11px; flex-shrink: 0; box-shadow: none;">
+                                    <i class="fas ${iconDef.icon}"></i>
+                                </div>
+                                <div>
+                                    <div style="font-size: 0.78rem; font-weight: 600; color: #1e293b;">${cfg.name}</div>
+                                    <div style="font-size: 0.7rem; color: #64748b;">${iconDef.desc || ''}</div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -960,6 +1060,19 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         });
 
+        if (html === '') {
+            legendContainer.innerHTML = `
+                <div style="text-align: center; color: var(--text-muted); padding: 30px 15px; font-size: 0.85rem;">
+                    <i class="fas fa-layer-group" style="font-size: 2.2rem; margin-bottom: 10px; opacity: 0.35;"></i><br>
+                    <b>Nenhuma camada temática ativa no momento.</b><br>
+                    <span style="font-size: 0.75rem; color: #64748b; display: block; margin-top: 6px;">
+                        Ative uma camada na aba <b>Camadas</b> para visualizar sua convenção cartográfica e legenda correspondente aqui.
+                    </span>
+                </div>
+            `;
+            return;
+        }
+
         legendContainer.innerHTML = html;
     }
 
@@ -988,6 +1101,13 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 } else {
                     map.removeLayer(targetLayer);
+                    // Fechar/desabilitar a legenda da camada desativada
+                    const panel = document.getElementById(`panel_classes_${layerKey}`);
+                    const btnToggle = document.querySelector(`.btn-symbology-toggle[data-layer="${layerKey}"]`);
+                    if (panel) {
+                        panel.style.display = 'none';
+                        if (btnToggle) btnToggle.style.background = '#f1f5f9';
+                    }
                 }
                 renderDynamicLegend();
             }
@@ -1046,10 +1166,15 @@ document.addEventListener('DOMContentLoaded', () => {
             const layerKey = e.target.getAttribute('data-layer');
             const targetLayer = layersGroup[layerKey];
             const val = parseFloat(e.target.value);
-            if (targetLayer && targetLayer.setStyle) {
-                targetLayer.setStyle({
-                    fillOpacity: val,
-                    opacity: Math.min(val + 0.3, 1)
+            if (targetLayer) {
+                if (targetLayer.setStyle) {
+                    targetLayer.setStyle({
+                        fillOpacity: val,
+                        opacity: Math.min(val + 0.3, 1)
+                    });
+                }
+                targetLayer.eachLayer(l => {
+                    if (l._icon) l._icon.style.opacity = val;
                 });
             }
         }
@@ -1061,8 +1186,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const layerKey = e.target.getAttribute('data-layer');
             const targetLayer = layersGroup[layerKey];
             const newColor = e.target.value;
-            if (targetLayer && targetLayer.setStyle) {
-                targetLayer.setStyle({ color: newColor });
+            if (targetLayer) {
+                if (targetLayer.setStyle) targetLayer.setStyle({ color: newColor });
+                targetLayer.eachLayer(l => {
+                    if (l._icon) l._icon.style.borderColor = newColor;
+                });
             }
         }
     });
@@ -1073,8 +1201,11 @@ document.addEventListener('DOMContentLoaded', () => {
             const layerKey = e.target.getAttribute('data-layer');
             const targetLayer = layersGroup[layerKey];
             const newFillColor = e.target.value;
-            if (targetLayer && targetLayer.setStyle) {
-                targetLayer.setStyle({ fillColor: newFillColor, fill: true });
+            if (targetLayer) {
+                if (targetLayer.setStyle) targetLayer.setStyle({ fillColor: newFillColor, fill: true });
+                targetLayer.eachLayer(l => {
+                    if (l._icon) l._icon.style.background = newFillColor;
+                });
             }
         }
     });
@@ -1085,11 +1216,17 @@ document.addEventListener('DOMContentLoaded', () => {
             const layerKey = e.target.getAttribute('data-layer');
             const targetLayer = layersGroup[layerKey];
             const newWeight = parseFloat(e.target.value);
-            if (targetLayer && targetLayer.setStyle) {
-                targetLayer.setStyle({ weight: newWeight });
-            }
-            if (targetLayer && targetLayer.setRadius) {
-                targetLayer.setRadius(newWeight * 2.5);
+            if (targetLayer) {
+                if (targetLayer.setStyle) targetLayer.setStyle({ weight: newWeight });
+                if (targetLayer.setRadius) targetLayer.setRadius(newWeight * 2.5);
+                targetLayer.eachLayer(l => {
+                    if (l._icon) {
+                        const newSize = Math.max(16, Math.round(newWeight * 6));
+                        l._icon.style.width = `${newSize}px`;
+                        l._icon.style.height = `${newSize}px`;
+                        l._icon.style.fontSize = `${Math.max(9, Math.round(newSize * 0.45))}px`;
+                    }
+                });
             }
         }
     });

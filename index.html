@@ -260,6 +260,15 @@
                             </div>
 
                             <div class="form-group">
+                                <label class="form-label"><i class="fas fa-camera"></i> Anexar Fotografia ou Vídeo (opcional):</label>
+                                <input type="file" id="colab-media" class="form-control" accept="image/*,video/*" capture="environment">
+                                <small style="color: var(--text-muted); font-size: 0.72rem; display: block; margin-top: 4px;">
+                                    Fotos ou vídeos do local (JPG, PNG, WEBP, MP4 - até 15MB).
+                                </small>
+                                <div id="colab-media-preview" style="margin-top: 8px; display: none;"></div>
+                            </div>
+
+                            <div class="form-group">
                                 <label class="form-label">Seu Nome / Instituição (opcional):</label>
                                 <input type="text" id="colab-author" class="form-control" placeholder="Ex: João da Silva">
                             </div>
@@ -315,10 +324,6 @@
                         <img src="https://a.tile.opentopomap.org/10/576/388.png" class="basemap-thumb" alt="Topográfico">
                         <span class="basemap-label">Topográfico</span>
                     </div>
-                    <div class="basemap-option" data-basemap="osm" title="Mapa de Ruas e Estradas OpenStreetMap">
-                        <img src="https://a.basemaps.cartocdn.com/rastertiles/voyager/10/576/388.png" class="basemap-thumb" alt="OpenStreetMap">
-                        <span class="basemap-label">Ruas (OSM)</span>
-                    </div>
                 </div>
             </div>
         </div>
@@ -327,12 +332,15 @@
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
-    <!-- Dados Geográficos (21 Camadas Oficiais de Jaguaraçu) -->
+    <!-- Dados Geográficos (24 Camadas Oficiais de Jaguaraçu) -->
     <script src="js/data/mascara_jaguaracu.js"></script>
     <script src="js/data/distritos.js"></script>
     <script src="js/data/setores_censitarios.js"></script>
     <script src="js/data/sede_municipal.js"></script>
     <script src="js/data/estabelecimento_saude.js"></script>
+    <script src="js/data/escolas.js"></script>
+    <script src="js/data/atrativos_turisticos.js"></script>
+    <script src="js/data/propriedades_rurais.js"></script>
     <script src="js/data/area_imoveis_CAR.js"></script>
     <script src="js/data/limite_APA.js"></script>
     <script src="js/data/areas_prioritarias_conservacao.js"></script>

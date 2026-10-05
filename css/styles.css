@@ -979,3 +979,97 @@ a.author-credit-link:hover .author-credit-box {
     }
 }
 
+/* ==========================================================================
+   Marcadores Geográficos Diferenciados (Variáveis Visuais para Pontos)
+   ========================================================================== */
+.gis-point-marker {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    color: #ffffff;
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.45);
+    transition: transform 0.2s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.2s ease;
+    cursor: pointer;
+}
+
+.gis-point-marker:hover {
+    transform: scale(1.25);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.5);
+    z-index: 9999 !important;
+}
+
+/* 1. Sede Municipal: Marco cívico com contorno dourado */
+.point-sede_municipal {
+    background: linear-gradient(135deg, #9333ea, #581c87);
+    border: 2.5px solid #fde047;
+    box-shadow: 0 0 10px rgba(234, 179, 8, 0.65), 0 3px 6px rgba(0, 0, 0, 0.4);
+}
+
+/* 2. Estabelecimentos de Saúde: Vermelho Carmim / Cruz Médica */
+.point-estabelecimento_saude {
+    background: linear-gradient(135deg, #ef4444, #991b1b);
+    border: 2px solid #ffffff;
+}
+
+/* 3. Nascentes: Gota d'água / Ciano Celeste */
+.point-nascentes {
+    background: linear-gradient(135deg, #38bdf8, #0284c7);
+    border: 2px solid #ffffff;
+}
+
+/* 4. Propriedades Rurais: Fazenda / Verde Floresta / Trator */
+.point-propriedades_rurais {
+    background: linear-gradient(135deg, #22c55e, #15803d);
+    border: 2px solid #ffffff;
+}
+
+/* 5. Escolas e Unidades Educacionais: Educação / Índigo Real / Capelo */
+.point-escolas {
+    background: linear-gradient(135deg, #6366f1, #3730a3);
+    border: 2px solid #ffffff;
+}
+
+/* 6. Atrativos Turísticos e Culturais: Câmera / Âmbar / Patrimônio */
+.point-atrativos_turisticos {
+    background: linear-gradient(135deg, #f59e0b, #b45309);
+    border: 2px solid #ffffff;
+}
+
+/* GeoColaboração - Mídia e Fotos */
+.colab-media-container {
+    margin: 8px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #0f172a;
+    border: 1px solid #cbd5e1;
+}
+
+.colab-media-preview-img {
+    width: 100%;
+    max-height: 200px;
+    object-fit: cover;
+    display: block;
+    cursor: pointer;
+}
+
+.colab-media-preview-video {
+    width: 100%;
+    max-height: 220px;
+    display: block;
+}
+
+.colab-media-tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    background: #e0f2fe;
+    color: #0369a1;
+    font-size: 0.7rem;
+    font-weight: 600;
+    padding: 2px 6px;
+    border-radius: 4px;
+    margin-top: 4px;
+}
+
+

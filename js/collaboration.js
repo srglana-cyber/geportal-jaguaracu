@@ -10,6 +10,7 @@ class GeoCollaborationManager {
         this.activeMarker = null;
         this.colabLayerGroup = L.layerGroup().addTo(this.map);
         this.isAddingPoint = false;
+        this.selectedMedia = null;
 
         this.initIcons();
         this.renderContributionsOnMap();
@@ -99,6 +100,7 @@ class GeoCollaborationManager {
             contact: formData.contact || 'Não informado',
             lat: parseFloat(formData.lat),
             lng: parseFloat(formData.lng),
+            media: formData.media || null,
             createdAt: new Date().toLocaleString('pt-BR')
         };
 
@@ -134,13 +136,31 @@ class GeoCollaborationManager {
                 iconAnchor: [11, 11]
             });
 
+            let mediaHTML = '';
+            if (colab.media && colab.media.data) {
+                if (colab.media.type === 'video') {
+                    mediaHTML = `
+                        <div class="colab-media-container">
+                            <video src="${colab.media.data}" controls class="colab-media-preview-video"></video>
+                        </div>
+                    `;
+                } else {
+                    mediaHTML = `
+                        <div class="colab-media-container">
+                            <img src="${colab.media.data}" class="colab-media-preview-img" onclick="window.open('${colab.media.data}')" title="Clique para ampliar fotografia">
+                        </div>
+                    `;
+                }
+            }
+
             const popupContent = `
                 <div class="popup-header" style="background: ${color};">
                     <i class="fas fa-users"></i> ${colab.category}
                 </div>
                 <div class="popup-body">
                     <h4 style="font-size: 0.95rem; font-weight: 700; margin-bottom: 6px; color: #0f172a;">${colab.title}</h4>
-                    <p style="font-size: 0.82rem; color: #334155; margin-bottom: 10px;">${colab.description}</p>
+                    <p style="font-size: 0.82rem; color: #334155; margin-bottom: 8px;">${colab.description}</p>
+                    ${mediaHTML}
                     <table class="popup-table">
                         <tr><th>Colaborador:</th><td>${colab.author}</td></tr>
                         <tr><th>Data:</th><td>${colab.createdAt}</td></tr>
@@ -169,26 +189,49 @@ class GeoCollaborationManager {
             return;
         }
 
-        container.innerHTML = this.contributions.map(c => `
-            <div class="colab-item">
-                <div class="colab-item-title">${c.title}</div>
-                <span class="colab-item-cat" style="background: ${this.categoryColors[c.category] || '#e0f2fe'}20; color: ${this.categoryColors[c.category] || '#0369a1'};">
-                    ${c.category}
-                </span>
-                <p style="color: var(--text-main); margin-bottom: 6px;">${c.description}</p>
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.75rem; color: var(--text-muted);">
-                    <span><i class="fas fa-user"></i> ${c.author}</span>
-                    <div>
-                        <button onclick="window.colabManager.zoomTo('${c.id}')" style="background: none; border: none; color: var(--accent-color); cursor: pointer; margin-right: 8px;" title="Ver no Mapa">
-                            <i class="fas fa-search-location"></i> Ver
-                        </button>
-                        <button onclick="window.colabManager.deleteContribution('${c.id}')" style="background: none; border: none; color: var(--danger-color); cursor: pointer;" title="Excluir">
-                            <i class="fas fa-trash-alt"></i> Excluir
-                        </button>
+        container.innerHTML = this.contributions.map(c => {
+            let mediaPreviewHTML = '';
+            if (c.media && c.media.data) {
+                if (c.media.type === 'video') {
+                    mediaPreviewHTML = `
+                        <div style="margin: 6px 0;">
+                            <video src="${c.media.data}" controls style="width: 100%; max-height: 120px; border-radius: 6px; background: #000;"></video>
+                        </div>
+                    `;
+                } else {
+                    mediaPreviewHTML = `
+                        <div style="margin: 6px 0;">
+                            <img src="${c.media.data}" style="width: 100%; max-height: 120px; object-fit: cover; border-radius: 6px; cursor: pointer;" onclick="window.open('${c.media.data}')" title="Clique para ampliar">
+                        </div>
+                    `;
+                }
+            }
+
+            return `
+                <div class="colab-item">
+                    <div class="colab-item-title">${c.title}</div>
+                    <div style="display: flex; gap: 4px; align-items: center; margin-bottom: 4px;">
+                        <span class="colab-item-cat" style="background: ${this.categoryColors[c.category] || '#e0f2fe'}20; color: ${this.categoryColors[c.category] || '#0369a1'};">
+                            ${c.category}
+                        </span>
+                        ${c.media ? `<span class="colab-media-tag"><i class="fas ${c.media.type === 'video' ? 'fa-video' : 'fa-camera'}"></i> Mídia</span>` : ''}
+                    </div>
+                    <p style="color: var(--text-main); margin-bottom: 6px;">${c.description}</p>
+                    ${mediaPreviewHTML}
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px; font-size: 0.75rem; color: var(--text-muted);">
+                        <span><i class="fas fa-user"></i> ${c.author}</span>
+                        <div>
+                            <button onclick="window.colabManager.zoomTo('${c.id}')" style="background: none; border: none; color: var(--accent-color); cursor: pointer; margin-right: 8px;" title="Ver no Mapa">
+                                <i class="fas fa-search-location"></i> Ver
+                            </button>
+                            <button onclick="window.colabManager.deleteContribution('${c.id}')" style="background: none; border: none; color: var(--danger-color); cursor: pointer;" title="Excluir">
+                                <i class="fas fa-trash-alt"></i> Excluir
+                            </button>
+                        </div>
                     </div>
                 </div>
-            </div>
-        `).join('');
+            `;
+        }).join('');
     }
 
     zoomTo(id) {
@@ -223,6 +266,8 @@ class GeoCollaborationManager {
                     descricao: c.description,
                     colaborador: c.author,
                     contato: c.contact,
+                    tem_midia: c.media ? true : false,
+                    tipo_midia: c.media ? c.media.type : null,
                     data_registro: c.createdAt
                 },
                 geometry: {
@@ -247,6 +292,54 @@ class GeoCollaborationManager {
             btnMarkPoint.addEventListener('click', () => this.startAddingPoint());
         }
 
+        const mediaInput = document.getElementById('colab-media');
+        const mediaPreview = document.getElementById('colab-media-preview');
+        if (mediaInput) {
+            mediaInput.addEventListener('change', (e) => {
+                const file = e.target.files[0];
+                if (!file) {
+                    this.selectedMedia = null;
+                    if (mediaPreview) {
+                        mediaPreview.style.display = 'none';
+                        mediaPreview.innerHTML = '';
+                    }
+                    return;
+                }
+
+                if (file.size > 15 * 1024 * 1024) {
+                    alert('O arquivo selecionado excede o limite recomendado de 15MB. Selecione uma foto ou vídeo menor.');
+                    mediaInput.value = '';
+                    return;
+                }
+
+                const isVideo = file.type.startsWith('video');
+                const reader = new FileReader();
+                reader.onload = (event) => {
+                    this.selectedMedia = {
+                        data: event.target.result,
+                        type: isVideo ? 'video' : 'image',
+                        name: file.name
+                    };
+
+                    if (mediaPreview) {
+                        mediaPreview.style.display = 'block';
+                        if (isVideo) {
+                            mediaPreview.innerHTML = `
+                                <div style="font-size: 0.72rem; color: #1e40af; margin-bottom: 4px;"><i class="fas fa-video"></i> Vídeo anexado: <b>${file.name}</b></div>
+                                <video src="${event.target.result}" controls style="width: 100%; max-height: 130px; border-radius: 6px; background: #000;"></video>
+                            `;
+                        } else {
+                            mediaPreview.innerHTML = `
+                                <div style="font-size: 0.72rem; color: #1e40af; margin-bottom: 4px;"><i class="fas fa-image"></i> Foto anexada: <b>${file.name}</b></div>
+                                <img src="${event.target.result}" style="width: 100%; max-height: 130px; object-fit: cover; border-radius: 6px;">
+                            `;
+                        }
+                    }
+                };
+                reader.readAsDataURL(file);
+            });
+        }
+
         const form = document.getElementById('form-colaboracao');
         if (form) {
             form.addEventListener('submit', (e) => {
@@ -258,16 +351,22 @@ class GeoCollaborationManager {
                     author: document.getElementById('colab-author').value,
                     contact: document.getElementById('colab-contact').value,
                     lat: document.getElementById('colab-lat').value,
-                    lng: document.getElementById('colab-lng').value
+                    lng: document.getElementById('colab-lng').value,
+                    media: this.selectedMedia
                 };
 
                 if (!formData.lat || !formData.lng) {
-                    alert('Por favor, selecione primeiro a localização no mapa clicando no botão "Marcar no Mapa".');
+                    alert('Por favor, selecione primeiro a localização no mapa clicando no botão "Marcar Ponto no Mapa".');
                     return;
                 }
 
                 this.addContribution(formData);
                 form.reset();
+                this.selectedMedia = null;
+                if (mediaPreview) {
+                    mediaPreview.style.display = 'none';
+                    mediaPreview.innerHTML = '';
+                }
                 document.getElementById('colab-lat').value = '';
                 document.getElementById('colab-lng').value = '';
             });
