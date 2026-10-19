@@ -712,12 +712,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --------------------------------------------------------------------------
-    // 7. Popups Informativos
     // --------------------------------------------------------------------------
-    function buildFeaturePopup(layerCfg, feature) {
+    // 7. Inspetor de Atributos e Destaque da Feição Selecionada (Substitui o Popup Bloqueante)
+    // --------------------------------------------------------------------------
+    let currentHighlightLayer = null;
+    let selectedFeatureLayer = null;
+
+    const featureInspector = document.getElementById('feature-inspector');
+    const inspectorLayerBadge = document.getElementById('inspector-layer-badge');
+    const inspectorLayerName = document.getElementById('inspector-layer-name');
+    const inspectorFeatureTitle = document.getElementById('inspector-feature-title');
+    const inspectorTable = document.getElementById('inspector-table');
+    const inspectorHeader = document.getElementById('inspector-header');
+    const btnInspectorClose = document.getElementById('btn-inspector-close');
+    const btnInspectorZoom = document.getElementById('btn-inspector-zoom');
+    const btnInspectorMinimize = document.getElementById('btn-inspector-minimize');
+
+    function highlightFeature(layer, feature) {
+        if (currentHighlightLayer) {
+            map.removeLayer(currentHighlightLayer);
+            currentHighlightLayer = null;
+        }
+
+        if (!feature) return;
+
+        const geomType = feature.geometry ? feature.geometry.type : '';
+        if (geomType.includes('Point')) {
+            const coords = feature.geometry.coordinates;
+            currentHighlightLayer = L.circleMarker([coords[1], coords[0]], {
+                radius: 13,
+                color: '#fbbf24',
+                weight: 4,
+                fillColor: '#f59e0b',
+                fillOpacity: 0.5,
+                pane: 'markerPane'
+            }).addTo(map);
+        } else {
+            currentHighlightLayer = L.geoJSON(feature, {
+                style: {
+                    color: '#fbbf24',
+                    weight: 5,
+                    dashArray: null,
+                    fillColor: '#f59e0b',
+                    fillOpacity: 0.25
+                }
+            }).addTo(map);
+        }
+    }
+
+    function openFeatureInspector(layerCfg, feature, layer) {
+        if (!featureInspector) return;
+
+        selectedFeatureLayer = layer;
+        highlightFeature(layer, feature);
+
         const props = feature.properties || {};
         const title = props.Atrativo || props.NOME || props.nome || props.name || props.NM_MUN || props.cod_imovel || props.UNIDADE || props.noriocomp || props.noespecif || props.categoria || layerCfg.name;
-        const color = layerCfg.style.color || '#1e3a8a';
+        const color = layerCfg.style && layerCfg.style.color ? layerCfg.style.color : '#1e3a8a';
+
+        if (inspectorHeader) {
+            inspectorHeader.style.background = `linear-gradient(135deg, ${color} 0%, #0f172a 100%)`;
+        }
+        if (inspectorLayerBadge) inspectorLayerBadge.innerText = layerCfg.badge || 'Camada';
+        if (inspectorLayerName) inspectorLayerName.innerText = layerCfg.name;
+        if (inspectorFeatureTitle) inspectorFeatureTitle.innerText = title;
 
         let rowsHTML = '';
         const ignoredKeys = new Set(['ogc_fid', 'fid_1', 'id1', 'id_objeto', 'cd_fcim']);
@@ -740,22 +798,56 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        return `
-            <div class="popup-header" style="background: ${color};">
-                <i class="fas fa-layer-group"></i> ${layerCfg.name}
-            </div>
-            <div class="popup-body">
-                <h4 style="margin-bottom: 4px; font-size: 0.88rem; color: #0f172a; font-weight: 700;">${title}</h4>
-                <table class="popup-table">
-                    ${rowsHTML || '<tr><td colspan="2">Sem atributos adicionais registrados</td></tr>'}
-                </table>
-                <div style="margin-top: 10px; padding-top: 8px; border-top: 1px dashed #cbd5e1; font-size: 0.68rem; color: #475569; line-height: 1.4;">
-                    <b>Fonte das informações geoespaciais:</b> INDE (Infraestrutura Nacional de Dados Espaciais), IDE-SISEMA (Sistema Estadual de Meio Ambiente e Desenvolvimento Sustentável de MG) e Prefeitura Municipal de Jaguaraçu.<br>
-                    <b>Adaptação e Prototipação:</b> <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer" style="color: #2563eb; text-decoration: none; font-weight: 600;">Prof. Sérgio Lana</a>
-                </div>
-            </div>
-        `;
+        if (inspectorTable) {
+            inspectorTable.innerHTML = rowsHTML || '<tr><td colspan="2">Sem atributos adicionais registrados</td></tr>';
+        }
+
+        featureInspector.classList.remove('minimized');
+        featureInspector.classList.add('active');
+
+        if (btnInspectorMinimize) {
+            btnInspectorMinimize.innerHTML = '<i class="fas fa-chevron-down"></i>';
+            btnInspectorMinimize.title = 'Minimizar painel';
+        }
     }
+
+    function closeFeatureInspector() {
+        if (!featureInspector) return;
+        featureInspector.classList.remove('active');
+        featureInspector.classList.remove('minimized');
+        if (currentHighlightLayer) {
+            map.removeLayer(currentHighlightLayer);
+            currentHighlightLayer = null;
+        }
+        selectedFeatureLayer = null;
+    }
+
+    if (btnInspectorClose) btnInspectorClose.addEventListener('click', closeFeatureInspector);
+
+    if (btnInspectorZoom) {
+        btnInspectorZoom.addEventListener('click', () => {
+            if (!selectedFeatureLayer) return;
+            if (selectedFeatureLayer.getBounds) {
+                map.fitBounds(selectedFeatureLayer.getBounds(), { maxZoom: 16, animate: true, padding: [40, 40] });
+            } else if (selectedFeatureLayer.getLatLng) {
+                map.setView(selectedFeatureLayer.getLatLng(), 16, { animate: true });
+            }
+        });
+    }
+
+    if (btnInspectorMinimize) {
+        btnInspectorMinimize.addEventListener('click', () => {
+            if (!featureInspector) return;
+            const isMin = featureInspector.classList.toggle('minimized');
+            btnInspectorMinimize.innerHTML = isMin ? '<i class="fas fa-chevron-up"></i>' : '<i class="fas fa-chevron-down"></i>';
+            btnInspectorMinimize.title = isMin ? 'Expandir painel' : 'Minimizar painel';
+        });
+    }
+
+    // Fechar inspetor ao clicar fora no mapa
+    map.on('click', () => {
+        closeFeatureInspector();
+    });
 
     // Função para calcular estilo de feição (suporta modo temático por atributo)
     function getFeatureStyle(cfg, feature) {
@@ -790,10 +882,57 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // --------------------------------------------------------------------------
-    // 8. Inicializar Camadas e Construir Controles na Sidebar
+    // 8. Inicializar Camadas e Construir Grupos Temáticos na Sidebar
     // --------------------------------------------------------------------------
     const containerCamadas = document.getElementById('layers-list-container');
 
+    // 6 Categorias Temáticas Solicitadas
+    const LAYER_CATEGORIES = [
+        {
+            id: 'divisao_politico_administrativa',
+            name: 'Divisão Político-Administrativa',
+            icon: 'fa-landmark-flag',
+            color: '#7e22ce',
+            layers: ['mascara', 'distritos', 'setores_censitarios', 'sede_municipal']
+        },
+        {
+            id: 'meio_ambiente_recursos_hidricos',
+            name: 'Meio Ambiente e Recursos Hídricos',
+            icon: 'fa-leaf',
+            color: '#15803d',
+            layers: ['apa', 'areas_prioritarias_conservacao', 'vegetacao', 'car', 'circunscricoes_hidrograficas', 'hidrografia', 'nascentes']
+        },
+        {
+            id: 'geologia_geomorfologia',
+            name: 'Geologia e Geomorfologia',
+            icon: 'fa-mountain-sun',
+            color: '#b45309',
+            layers: ['geologia', 'geomorfologia', 'pedologia', 'erosao']
+        },
+        {
+            id: 'infraestrutura_transporte',
+            name: 'Infraestrutura e Transporte',
+            icon: 'fa-road',
+            color: '#ea580c',
+            layers: ['rodovia_federal', 'rodovias', 'estradas_municipais', 'faces_logradouros']
+        },
+        {
+            id: 'turismo',
+            name: 'Turismo',
+            icon: 'fa-camera',
+            color: '#d97706',
+            layers: ['atrativos_turisticos', 'cicloturismo']
+        },
+        {
+            id: 'equipamentos_servicos_publicos',
+            name: 'Equipamentos Urbanos e Serviços Públicos',
+            icon: 'fa-hospital-user',
+            color: '#2563eb',
+            layers: ['estabelecimento_saude', 'escolas', 'propriedades_rurais']
+        }
+    ];
+
+    // Criar instâncias do Leaflet para cada camada
     LAYERS_CONFIG.forEach(cfg => {
         const geojsonData = window[cfg.varName];
         if (!geojsonData) {
@@ -836,7 +975,10 @@ document.addEventListener('DOMContentLoaded', () => {
             },
             onEachFeature: (feature, layer) => {
                 if (cfg.interactive !== false) {
-                    layer.bindPopup(buildFeaturePopup(cfg, feature));
+                    layer.on('click', (e) => {
+                        L.DomEvent.stopPropagation(e);
+                        openFeatureInspector(cfg, feature, layer);
+                    });
                 }
             }
         });
@@ -850,96 +992,179 @@ document.addEventListener('DOMContentLoaded', () => {
         if (cfg.active) {
             leafletLayer.addTo(map);
         }
+    });
 
-        // Montagem do Card da Camada
-        if (containerCamadas) {
-            const card = document.createElement('div');
-            card.className = 'layer-card';
-            card.setAttribute('draggable', 'true');
-            card.setAttribute('data-layer-id', cfg.id);
+    // Função para criar o card de controle de uma camada
+    function buildLayerCardElement(cfg) {
+        const card = document.createElement('div');
+        card.className = 'layer-card';
+        card.setAttribute('draggable', 'true');
+        card.setAttribute('data-layer-id', cfg.id);
 
-            const initialOpacity = cfg.style.fillOpacity !== undefined ? cfg.style.fillOpacity : (cfg.style.opacity || 0.7);
-            const strokeColor = cfg.style.color || '#3b82f6';
-            const fillColor = cfg.style.fillColor || strokeColor;
-            const weightVal = cfg.style.weight || 2;
+        const initialOpacity = cfg.style.fillOpacity !== undefined ? cfg.style.fillOpacity : (cfg.style.opacity || 0.7);
+        const strokeColor = cfg.style.color || '#3b82f6';
+        const fillColor = cfg.style.fillColor || strokeColor;
+        const weightVal = cfg.style.weight || 2;
 
-            // Painel de simbologia temática customizável por classe (se houver)
-            const tCfg = THEMATIC_CONFIG[cfg.id];
-            let thematicHTML = '';
-            if (tCfg && tCfg.classes) {
-                let classItemsHTML = '';
-                for (const [cKey, cInfo] of Object.entries(tCfg.classes)) {
-                    classItemsHTML += `
-                        <div class="class-item-row">
-                            <div class="class-color-preview" style="background: ${cInfo.fill}; border-color: ${cInfo.color};" id="preview_${cfg.id}_${cKey}"></div>
-                            <span class="class-item-label" title="${cInfo.label}">${cInfo.label}</span>
-                            <input type="color" class="class-color-input" data-layer="${cfg.id}" data-class="${cKey}" value="${cInfo.fill}" title="Clique para alterar a cor desta classe no mapa">
-                        </div>
-                    `;
-                }
-
-                thematicHTML = `
-                    <button type="button" class="btn-symbology-toggle" data-layer="${cfg.id}">
-                        <i class="fas fa-palette"></i> Simbologia por Atributos & Legenda
-                    </button>
-                    <div class="classes-legend-panel" id="panel_classes_${cfg.id}" style="display: none;">
-                        <div class="classes-legend-header">
-                            <span><i class="fas fa-tags"></i> ${tCfg.fieldDesc}</span>
-                        </div>
-                        <div class="classes-legend-list">
-                            ${classItemsHTML}
-                        </div>
+        // Painel de simbologia temática customizável por classe (se houver)
+        const tCfg = THEMATIC_CONFIG[cfg.id];
+        let thematicHTML = '';
+        if (tCfg && tCfg.classes) {
+            let classItemsHTML = '';
+            for (const [cKey, cInfo] of Object.entries(tCfg.classes)) {
+                classItemsHTML += `
+                    <div class="class-item-row">
+                        <div class="class-color-preview" style="background: ${cInfo.fill}; border-color: ${cInfo.color};" id="preview_${cfg.id}_${cKey}"></div>
+                        <span class="class-item-label" title="${cInfo.label}">${cInfo.label}</span>
+                        <input type="color" class="class-color-input" data-layer="${cfg.id}" data-class="${cKey}" value="${cInfo.fill}" title="Clique para alterar a cor desta classe no mapa">
                     </div>
                 `;
             }
 
-            card.innerHTML = `
-                <div class="layer-header">
-                    <div class="drag-handle" title="Clique e arraste para reordenar a sobreposição desta camada">
-                        <i class="fas fa-grip-vertical"></i>
+            thematicHTML = `
+                <button type="button" class="btn-symbology-toggle" data-layer="${cfg.id}">
+                    <i class="fas fa-palette"></i> Simbologia por Atributos & Legenda
+                </button>
+                <div class="classes-legend-panel" id="panel_classes_${cfg.id}" style="display: none;">
+                    <div class="classes-legend-header">
+                        <span><i class="fas fa-tags"></i> ${tCfg.fieldDesc}</span>
                     </div>
-                    <label class="layer-title-group" style="flex: 1;">
-                        <input type="checkbox" class="layer-toggle" data-layer="${cfg.id}" ${cfg.active ? 'checked' : ''}>
-                        <span class="layer-name">${cfg.name}</span>
-                    </label>
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span class="layer-badge">${cfg.badge}</span>
-                        <button type="button" class="btn-download-kml" data-layer="${cfg.id}" title="Baixar camada '${cfg.name}' em formato KML (Google Earth)">
-                            <i class="fas fa-file-arrow-down"></i> KML
-                        </button>
+                    <div class="classes-legend-list">
+                        ${classItemsHTML}
                     </div>
                 </div>
-                <div class="layer-controls">
-                    <span class="opacity-label">Opacidade:</span>
-                    <input type="range" class="opacity-slider" data-layer="${cfg.id}" min="0" max="1" step="0.05" value="${initialOpacity}">
-                </div>
-                <div class="layer-style-options">
-                    <div class="style-item">
-                        <span class="style-label">${cfg.geomType === 'point' ? 'Borda:' : (cfg.geomType === 'line' ? 'Linha:' : 'Contorno:')}</span>
-                        <input type="color" class="color-picker-stroke" data-layer="${cfg.id}" value="${strokeColor}" title="Cor geral do contorno">
-                    </div>
-                    ${cfg.geomType !== 'line' ? `
-                    <div class="style-item">
-                        <span class="style-label">${cfg.geomType === 'point' ? 'Ponto:' : 'Fundo:'}</span>
-                        <input type="color" class="color-picker-fill" data-layer="${cfg.id}" value="${fillColor}" title="Cor geral de preenchimento">
-                    </div>` : ''}
-                    <div class="style-item">
-                        <span class="style-label">${cfg.geomType === 'point' ? 'Tamanho:' : 'Espessura:'}</span>
-                        <select class="weight-selector" data-layer="${cfg.id}" title="Espessura do traço">
-                            <option value="1" ${weightVal == 1 ? 'selected' : ''}>1px</option>
-                            <option value="1.8" ${weightVal == 1.8 ? 'selected' : ''}>1.8px</option>
-                            <option value="2.5" ${weightVal == 2.5 ? 'selected' : ''}>2.5px</option>
-                            <option value="3.5" ${weightVal == 3.5 ? 'selected' : ''}>3.5px</option>
-                            <option value="5" ${weightVal == 5 ? 'selected' : ''}>5px</option>
-                            <option value="7" ${weightVal == 7 ? 'selected' : ''}>7px</option>
-                        </select>
-                    </div>
-                </div>
-                ${thematicHTML}
             `;
-            containerCamadas.appendChild(card);
         }
-    });
+
+        card.innerHTML = `
+            <div class="layer-header">
+                <div class="drag-handle" title="Clique e arraste para reordenar a sobreposição desta camada">
+                    <i class="fas fa-grip-vertical"></i>
+                </div>
+                <label class="layer-title-group" style="flex: 1;">
+                    <input type="checkbox" class="layer-toggle" data-layer="${cfg.id}" ${cfg.active ? 'checked' : ''}>
+                    <span class="layer-name">${cfg.name}</span>
+                </label>
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <span class="layer-badge">${cfg.badge}</span>
+                    <button type="button" class="btn-download-kml" data-layer="${cfg.id}" title="Baixar camada '${cfg.name}' em formato KML (Google Earth)">
+                        <i class="fas fa-file-arrow-down"></i> KML
+                    </button>
+                </div>
+            </div>
+            <div class="layer-controls">
+                <span class="opacity-label">Opacidade:</span>
+                <input type="range" class="opacity-slider" data-layer="${cfg.id}" min="0" max="1" step="0.05" value="${initialOpacity}">
+            </div>
+            <div class="layer-style-options">
+                <div class="style-item">
+                    <span class="style-label">${cfg.geomType === 'point' ? 'Borda:' : (cfg.geomType === 'line' ? 'Linha:' : 'Contorno:')}</span>
+                    <input type="color" class="color-picker-stroke" data-layer="${cfg.id}" value="${strokeColor}" title="Cor geral do contorno">
+                </div>
+                ${cfg.geomType !== 'line' ? `
+                <div class="style-item">
+                    <span class="style-label">${cfg.geomType === 'point' ? 'Ponto:' : 'Fundo:'}</span>
+                    <input type="color" class="color-picker-fill" data-layer="${cfg.id}" value="${fillColor}" title="Cor geral de preenchimento">
+                </div>` : ''}
+                <div class="style-item">
+                    <span class="style-label">${cfg.geomType === 'point' ? 'Tamanho:' : 'Espessura:'}</span>
+                    <select class="weight-selector" data-layer="${cfg.id}" title="Espessura do traço">
+                        <option value="1" ${weightVal == 1 ? 'selected' : ''}>1px</option>
+                        <option value="1.8" ${weightVal == 1.8 ? 'selected' : ''}>1.8px</option>
+                        <option value="2.5" ${weightVal == 2.5 ? 'selected' : ''}>2.5px</option>
+                        <option value="3.5" ${weightVal == 3.5 ? 'selected' : ''}>3.5px</option>
+                        <option value="5" ${weightVal == 5 ? 'selected' : ''}>5px</option>
+                        <option value="7" ${weightVal == 7 ? 'selected' : ''}>7px</option>
+                    </select>
+                </div>
+            </div>
+            ${thematicHTML}
+        `;
+        return card;
+    }
+
+    // Renderizar os grupos acordeão com suas respectivas camadas
+    if (containerCamadas) {
+        containerCamadas.innerHTML = '';
+
+        LAYER_CATEGORIES.forEach(cat => {
+            const groupEl = document.createElement('div');
+            groupEl.className = 'layer-category-group';
+            groupEl.setAttribute('data-category-id', cat.id);
+
+            const headerEl = document.createElement('div');
+            headerEl.className = 'category-header';
+            headerEl.innerHTML = `
+                <div class="category-header-title">
+                    <span class="category-icon" style="background: ${cat.color};">
+                        <i class="fas ${cat.icon}"></i>
+                    </span>
+                    <span class="category-name">${cat.name}</span>
+                    <span class="category-count">${cat.layers.length}</span>
+                    <span class="category-active-badge" id="cat-badge-${cat.id}" style="display: none;">0 ativas</span>
+                </div>
+                <i class="fas fa-chevron-down category-arrow"></i>
+            `;
+
+            const contentEl = document.createElement('div');
+            contentEl.className = 'category-content';
+
+            cat.layers.forEach(layerId => {
+                const cfg = LAYERS_CONFIG.find(c => c.id === layerId);
+                if (cfg) {
+                    const card = buildLayerCardElement(cfg);
+                    contentEl.appendChild(card);
+                }
+            });
+
+            // Toggle acordeão ao clicar no cabeçalho
+            headerEl.addEventListener('click', () => {
+                groupEl.classList.toggle('collapsed');
+            });
+
+            groupEl.appendChild(headerEl);
+            groupEl.appendChild(contentEl);
+            containerCamadas.appendChild(groupEl);
+        });
+
+        // Botões da Barra de Ferramentas: Expandir e Recolher Todos
+        const btnExpandAll = document.getElementById('btn-expand-all-categories');
+        const btnCollapseAll = document.getElementById('btn-collapse-all-categories');
+
+        if (btnExpandAll) {
+            btnExpandAll.addEventListener('click', () => {
+                document.querySelectorAll('.layer-category-group').forEach(g => g.classList.remove('collapsed'));
+            });
+        }
+        if (btnCollapseAll) {
+            btnCollapseAll.addEventListener('click', () => {
+                document.querySelectorAll('.layer-category-group').forEach(g => g.classList.add('collapsed'));
+            });
+        }
+    }
+
+    // Atualizar badges com contagem de camadas ativas em cada categoria
+    function updateCategoryBadges() {
+        LAYER_CATEGORIES.forEach(cat => {
+            let activeCount = 0;
+            cat.layers.forEach(layerId => {
+                const chk = document.querySelector(`.layer-toggle[data-layer="${layerId}"]`);
+                if (chk && chk.checked) activeCount++;
+            });
+
+            const badge = document.getElementById(`cat-badge-${cat.id}`);
+            if (badge) {
+                if (activeCount > 0) {
+                    badge.innerText = `${activeCount} ativa${activeCount > 1 ? 's' : ''}`;
+                    badge.style.display = 'inline-block';
+                } else {
+                    badge.style.display = 'none';
+                }
+            }
+        });
+    }
+
+    updateCategoryBadges();
 
     // --------------------------------------------------------------------------
     // 9. Atualização Dinâmica da Aba de Legendas (Convenções Cartográficas)
@@ -1132,6 +1357,7 @@ document.addEventListener('DOMContentLoaded', () => {
                     }
                 }
                 renderDynamicLegend();
+                updateCategoryBadges();
             }
         }
     });
@@ -1439,24 +1665,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 });
             },
             onEachFeature: (feature, layer) => {
-                const props = feature.properties || {};
-                let rowsHTML = '';
-                for (let k in props) {
-                    rowsHTML += `<tr><th>${k}:</th><td>${props[k]}</td></tr>`;
-                }
-                layer.bindPopup(`
-                    <div class="popup-header" style="background: ${strokeColor};">
-                        <i class="fas fa-file-circle-check"></i> ${name}
-                    </div>
-                    <div class="popup-body">
-                        <p style="font-size: 0.7rem; color: #64748b; margin-bottom: 6px;">
-                            <i class="fas fa-user-graduate"></i> Geoportal Jaguaraçu | <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" style="color: #2563eb; text-decoration: none;">Prof. Sérgio Lana</a>
-                        </p>
-                        <table class="popup-table">
-                            ${rowsHTML || '<tr><td colspan="2">Sem atributos registrados</td></tr>'}
-                        </table>
-                    </div>
-                `);
+                layer.on('click', (e) => {
+                    L.DomEvent.stopPropagation(e);
+                    openFeatureInspector({ id: layerKey, name: name, badge: 'Upload', style: { color: strokeColor } }, feature, layer);
+                });
             }
         }).addTo(map);
 
@@ -1577,17 +1789,17 @@ document.addEventListener('DOMContentLoaded', () => {
                             if (chk) chk.checked = true;
                             updateMapLayersOrder();
                             renderDynamicLegend();
+                            updateCategoryBadges();
                         }
 
                         if (subLayer.getBounds) {
-                            map.fitBounds(subLayer.getBounds(), { maxZoom: 16, animate: true });
+                            map.fitBounds(subLayer.getBounds(), { maxZoom: 16, animate: true, padding: [40, 40] });
                         } else if (subLayer.getLatLng) {
                             map.setView(subLayer.getLatLng(), 16, { animate: true });
                         }
 
-                        if (subLayer.openPopup) {
-                            subLayer.openPopup();
-                        }
+                        const cfg = LAYERS_CONFIG.find(c => c.id === layerId) || { id: layerId, name: layerId, badge: 'Busca' };
+                        openFeatureInspector(cfg, subLayer.feature, subLayer);
 
                         found = true;
                         break;

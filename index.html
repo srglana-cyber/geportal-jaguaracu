@@ -112,11 +112,17 @@
                         <p style="font-size: 0.8rem; color: var(--text-muted); margin-bottom: 6px;">
                             Ative ou desative as camadas geográficas e ajuste a transparência:
                         </p>
-                        <p style="font-size: 0.72rem; color: #2563eb; margin-bottom: 12px; font-weight: 600;">
-                            <i class="fas fa-up-down-left-right"></i> Arraste as camadas para cima/baixo para alterar a sobreposição no mapa.
-                        </p>
+                        <!-- Barra de Ferramentas de Categorias -->
+                        <div class="category-toolbar">
+                            <button type="button" id="btn-expand-all-categories" class="btn-category-action" title="Expandir todos os grupos">
+                                <i class="fas fa-angles-down"></i> Expandir Todos
+                            </button>
+                            <button type="button" id="btn-collapse-all-categories" class="btn-category-action" title="Recolher todos os grupos">
+                                <i class="fas fa-angles-up"></i> Recolher Todos
+                            </button>
+                        </div>
 
-                        <!-- Container Dinâmico de Camadas (24 camadas carregadas via app.js) -->
+                        <!-- Container Dinâmico de Camadas Agrupadas por Temas (24 camadas) -->
                         <div id="layers-list-container"></div>
                     </div>
 
@@ -320,6 +326,42 @@
 
             <!-- O Mapa Leaflet -->
             <div id="map"></div>
+
+            <!-- Painel / Inspetor de Atributos da Feição Selecionada (Substitui popup sobreposto no mapa) -->
+            <div id="feature-inspector" class="feature-inspector">
+                <div class="inspector-touch-handle"></div>
+                <div class="inspector-header" id="inspector-header">
+                    <div class="inspector-header-info">
+                        <span id="inspector-layer-badge" class="inspector-badge">Camada</span>
+                        <h4 id="inspector-layer-name" class="inspector-layer-title">Detalhes da Feição</h4>
+                    </div>
+                    <div class="inspector-header-actions">
+                        <button type="button" id="btn-inspector-zoom" class="btn-inspector-action" title="Aproximar feição no mapa">
+                            <i class="fas fa-magnifying-glass-location"></i>
+                        </button>
+                        <button type="button" id="btn-inspector-minimize" class="btn-inspector-action" title="Minimizar / Expandir">
+                            <i class="fas fa-chevron-down"></i>
+                        </button>
+                        <button type="button" id="btn-inspector-close" class="btn-inspector-action" title="Fechar painel de atributos">
+                            <i class="fas fa-xmark"></i>
+                        </button>
+                    </div>
+                </div>
+                <div class="inspector-body" id="inspector-body">
+                    <div class="inspector-feature-title" id="inspector-feature-title">Nome da Feição</div>
+                    <div class="inspector-table-container">
+                        <table class="inspector-table" id="inspector-table">
+                            <!-- Preenchido dinamicamente via JS -->
+                        </table>
+                    </div>
+                    <div class="inspector-footer">
+                        <div class="inspector-credits">
+                            <i class="fas fa-landmark"></i> <b>Fontes:</b> INDE, IDE-SISEMA e Prefeitura de Jaguaraçu.<br>
+                            <i class="fas fa-user-graduate"></i> <b>Adaptação:</b> <a href="http://lattes.cnpq.br/2773267607623633" target="_blank" rel="noopener noreferrer">Prof. Sérgio Lana</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
             <!-- Card de Basemaps Flutuante na Tela do Mapa (Canto Inferior Direito) -->
             <div style="position: absolute; bottom: 25px; right: 20px; z-index: 990;">
