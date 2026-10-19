@@ -231,19 +231,26 @@ document.addEventListener('DOMContentLoaded', () => {
             title: 'Cobertura Vegetal e Uso do Solo',
             fieldDesc: 'Tipologias Vegetais e Uso da Terra',
             getClass: (feat) => {
-                const text = JSON.stringify(feat.properties || {}).toLowerCase();
-                if (text.includes('eucalipto') || text.includes('reflorestamento')) return 'EUCALIPTO';
-                if (text.includes('pastagem') || text.includes('pecuaria')) return 'PASTAGEM';
-                if (text.includes('floresta') || text.includes('secundaria')) return 'FLORESTA';
-                if (text.includes('agua') || text.includes('corpo')) return 'AGUA';
+                const p = feat.properties || {};
+                const cd = (p.clas_domi || p.cd_leg_2 || '').toUpperCase();
+                const uantr = (p.nm_uantr || '').toLowerCase();
+                const leg = (p.legenda || p.legenda_2 || '').toLowerCase();
+                const sup = (p.leg_sup || '').toLowerCase();
+
+                if (cd === 'AP' || uantr.includes('pecu') || uantr.includes('past') || leg.includes('pecu')) return 'PASTAGEM';
+                if (cd === 'RE' || uantr.includes('eucalipto') || uantr.includes('reflor') || leg.includes('reflorestamento')) return 'EUCALIPTO';
+                if (cd === 'IU' || uantr.includes('urbana') || leg.includes('urbana')) return 'URBANO';
+                if (cd === 'MAGUA' || sup.includes('água') || leg.includes('água') || leg.includes('corpo')) return 'AGUA';
+                if (cd === 'F' || leg.includes('floresta') || uantr.includes('floresta')) return 'FLORESTA';
                 return 'OUTROS';
             },
             classes: {
-                'EUCALIPTO': { label: 'Florestamento / Eucaliptos', color: '#14532d', fill: '#16a34a' },
-                'PASTAGEM': { label: 'Pecuária / Pastagens', color: '#ca8a04', fill: '#facc15' },
-                'FLORESTA': { label: 'Floresta / Veg. Secundária', color: '#15803d', fill: '#4ade80' },
-                'AGUA': { label: 'Corpos D\'água Continentais', color: '#0284c7', fill: '#38bdf8' },
-                'OUTROS': { label: 'Áreas Antrópicas Dominantes', color: '#b45309', fill: '#d97706' }
+                'PASTAGEM': { label: 'Pecuária / Pastagens (Ap)', color: '#ca8a04', fill: '#facc15' },
+                'EUCALIPTO': { label: 'Silvicultura / Eucaliptos (Re)', color: '#14532d', fill: '#16a34a' },
+                'URBANO': { label: 'Influência Urbana / Edificações (Iu)', color: '#be123c', fill: '#f43f5e' },
+                'AGUA': { label: 'Corpos D\'água Continentais (Magua)', color: '#0284c7', fill: '#38bdf8' },
+                'FLORESTA': { label: 'Floresta Nativa / Veg. Secundária (F)', color: '#15803d', fill: '#4ade80' },
+                'OUTROS': { label: 'Outras Áreas Antrópicas', color: '#b45309', fill: '#d97706' }
             }
         },
 
@@ -308,16 +315,18 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         erosao: {
-            title: 'Suscetibilidade à Erosão',
-            fieldDesc: 'Vulnerabilidade a Processos Erosivos',
+            title: 'Vulnerabilidade do Meio Físico e Suscetibilidade à Erosão',
+            fieldDesc: 'Vulnerabilidade a Processos Erosivos e Movimentos de Massa (CPRM)',
             getClass: (feat) => {
-                const text = JSON.stringify(feat.properties || {}).toLowerCase();
-                if (text.includes('mantiqueira') || text.includes('a3m')) return 'MANTIQUEIRA';
-                return 'ACUCENA';
+                const p = feat.properties || {};
+                const sigla = (p.SIGLA_UNID || '').toUpperCase();
+                const nome = (p.NOME_UNIDA || '').toLowerCase();
+                if (sigla.includes('A3M') || nome.includes('mantiqueira')) return 'ALTA';
+                return 'MODERADA';
             },
             classes: {
-                'MANTIQUEIRA': { label: 'Alta Suscetibilidade (Complexo Mantiqueira)', color: '#dc2626', fill: '#ef4444' },
-                'ACUCENA': { label: 'Moderada a Forte (Gnaisse Açucena)', color: '#ea580c', fill: '#f97316' }
+                'ALTA': { label: 'Alta Vulnerabilidade / Movimentos de Massa (Complexo Mantiqueira)', color: '#b91c1c', fill: '#ef4444' },
+                'MODERADA': { label: 'Média/Moderada Vulnerabilidade (Gnaisse Granítico Açucena)', color: '#c2410c', fill: '#f97316' }
             }
         },
 
@@ -520,9 +529,9 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'erosao',
-            name: 'Suscetibilidade à Erosão',
+            name: 'Vulnerabilidade e Suscetibilidade à Erosão',
             varName: 'GEO_DATA_erosao',
-            badge: 'Risco',
+            badge: 'Vulnerabilidade',
             geomType: 'polygon',
             active: false,
             isThematic: true,
@@ -684,14 +693,15 @@ document.addEventListener('DOMContentLoaded', () => {
         map.invalidateSize();
 
         const sidebarEl = document.getElementById('sidebar');
-        const isSidebarVisible = sidebarEl && !sidebarEl.classList.contains('collapsed') && window.innerWidth > 768;
-        const sidebarWidth = isSidebarVisible ? (sidebarEl.offsetWidth || 380) : 0;
+        const isMobileOrTablet = window.innerWidth <= 850;
+        const isSidebarVisibleOnDesktop = sidebarEl && !sidebarEl.classList.contains('collapsed') && !isMobileOrTablet;
+        const sidebarWidth = isSidebarVisibleOnDesktop ? (sidebarEl.offsetWidth || 380) : 0;
 
         // Compensa a largura do painel lateral para que o município fique perfeitamente centralizado na área visível
-        const leftPad = sidebarWidth + 40;
-        const rightPad = 40;
-        const topPad = 35;
-        const bottomPad = 50;
+        const leftPad = isSidebarVisibleOnDesktop ? (sidebarWidth + 40) : (isMobileOrTablet ? 20 : 40);
+        const rightPad = isMobileOrTablet ? 20 : 40;
+        const topPad = isMobileOrTablet ? 55 : 35;
+        const bottomPad = isMobileOrTablet ? 30 : 50;
 
         map.fitBounds(layerMascaraRef.getBounds(), {
             paddingTopLeft: [leftPad, topPad],
@@ -1608,20 +1618,58 @@ document.addEventListener('DOMContentLoaded', () => {
         btnResetExtent.addEventListener('click', () => fitMunicipio(true));
     }
 
-    // Alternar Sidebar Retrátil com ajuste imediato do mapa
+    // Alternar Sidebar Retrátil com suporte responsivo a Mobile/Tablet
     const sidebar = document.getElementById('sidebar');
     const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
     const btnCloseSidebar = document.getElementById('btn-close-sidebar');
+    const btnFloatingSidebar = document.getElementById('btn-floating-sidebar');
+    const sidebarBackdrop = document.getElementById('sidebar-backdrop');
+
+    function updateSidebarUI() {
+        if (!sidebar) return;
+        const isCollapsed = sidebar.classList.contains('collapsed');
+        const isMobileOrTablet = window.innerWidth <= 850;
+
+        if (isCollapsed) {
+            if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+            if (btnFloatingSidebar) btnFloatingSidebar.classList.add('visible');
+        } else {
+            if (isMobileOrTablet) {
+                if (sidebarBackdrop) sidebarBackdrop.classList.add('active');
+            } else {
+                if (sidebarBackdrop) sidebarBackdrop.classList.remove('active');
+            }
+            if (btnFloatingSidebar) btnFloatingSidebar.classList.remove('visible');
+        }
+    }
+
+    function openSidebar() {
+        if (!sidebar) return;
+        sidebar.classList.remove('collapsed');
+        updateSidebarUI();
+        setTimeout(() => fitMunicipio(true), 320);
+    }
+
+    function closeSidebar() {
+        if (!sidebar) return;
+        sidebar.classList.add('collapsed');
+        updateSidebarUI();
+        setTimeout(() => fitMunicipio(true), 320);
+    }
 
     function toggleSidebar() {
-        sidebar.classList.toggle('collapsed');
-        setTimeout(() => {
-            fitMunicipio(true);
-        }, 320);
+        if (!sidebar) return;
+        if (sidebar.classList.contains('collapsed')) {
+            openSidebar();
+        } else {
+            closeSidebar();
+        }
     }
 
     if (btnToggleSidebar) btnToggleSidebar.addEventListener('click', toggleSidebar);
-    if (btnCloseSidebar) btnCloseSidebar.addEventListener('click', toggleSidebar);
+    if (btnCloseSidebar) btnCloseSidebar.addEventListener('click', closeSidebar);
+    if (btnFloatingSidebar) btnFloatingSidebar.addEventListener('click', openSidebar);
+    if (sidebarBackdrop) sidebarBackdrop.addEventListener('click', closeSidebar);
 
     // Navegação por Abas na Sidebar
     const tabBtns = document.querySelectorAll('.tab-btn');
@@ -1638,9 +1686,8 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetEl = document.getElementById(`tab-${targetTab}`);
             if (targetEl) targetEl.classList.add('active');
 
-            if (sidebar.classList.contains('collapsed')) {
-                sidebar.classList.remove('collapsed');
-                setTimeout(() => fitMunicipio(true), 320);
+            if (sidebar && sidebar.classList.contains('collapsed')) {
+                openSidebar();
             }
 
             if (targetTab === 'legenda') {
@@ -1666,9 +1713,22 @@ document.addEventListener('DOMContentLoaded', () => {
         window.measureManager = new GeoMeasureManager(map);
     }
 
+    // Em dispositivos móveis ou tablets, inicia com a sidebar recolhida para exibir o mapa imediatamente
+    if (window.innerWidth <= 850 && sidebar) {
+        sidebar.classList.add('collapsed');
+    }
+    updateSidebarUI();
+
     // Executar centralização inicial automática com compensação do painel lateral
     fitMunicipio(false);
-    setTimeout(() => fitMunicipio(false), 300);
+    setTimeout(() => {
+        updateSidebarUI();
+        fitMunicipio(false);
+    }, 300);
     setTimeout(() => fitMunicipio(false), 600);
-    window.addEventListener('resize', () => fitMunicipio(false));
+
+    window.addEventListener('resize', () => {
+        updateSidebarUI();
+        fitMunicipio(false);
+    });
 });

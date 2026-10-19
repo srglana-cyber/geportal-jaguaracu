@@ -939,18 +939,79 @@ a.author-credit-link:hover .author-credit-box {
     flex-shrink: 0;
 }
 
-/* Design Responsivo */
-@media (max-width: 768px) {
-    :root {
-        --sidebar-width: 100vw;
-    }
+/* Backdrop para dispositivos móveis */
+.sidebar-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.6);
+    backdrop-filter: blur(2px);
+    z-index: 1040;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+    pointer-events: none;
+}
 
+.sidebar-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+}
+
+/* Botão Flutuante de Camadas / Painel */
+.btn-floating-sidebar {
+    position: absolute;
+    top: 15px;
+    left: 15px;
+    z-index: 950;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: linear-gradient(135deg, #1e3a8a 0%, #2563eb 100%);
+    color: #ffffff;
+    border: 2px solid rgba(255, 255, 255, 0.9);
+    padding: 10px 18px;
+    border-radius: 30px;
+    font-size: 0.92rem;
+    font-weight: 700;
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.35);
+    cursor: pointer;
+    transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    pointer-events: none;
+}
+
+.btn-floating-sidebar.visible {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+    pointer-events: auto;
+}
+
+.btn-floating-sidebar:hover {
+    background: linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%);
+    transform: translateY(-2px) scale(1.03);
+    box-shadow: 0 8px 22px rgba(0, 0, 0, 0.45);
+}
+
+.btn-floating-sidebar:active {
+    transform: translateY(1px);
+}
+
+/* Design Responsivo e Adaptações Mobile/Tablet */
+@media (max-width: 850px) {
     #navbar {
-        padding: 0 12px;
+        padding: 0 10px;
+        height: 54px;
     }
 
     .brand-title {
-        font-size: 1rem;
+        font-size: 0.95rem;
     }
 
     .brand-subtitle {
@@ -961,21 +1022,50 @@ a.author-credit-link:hover .author-credit-box {
         display: none;
     }
 
+    .navbar-search-wrapper {
+        display: none !important;
+    }
+
     .btn-nav span {
         display: none;
     }
 
     .btn-nav {
-        padding: 8px 10px;
+        padding: 7px 10px;
+        font-size: 0.95rem;
     }
 
     #sidebar {
-        position: absolute;
+        position: fixed;
         top: 0;
         left: 0;
         height: 100%;
-        width: 88vw;
-        max-width: 360px;
+        width: 86vw;
+        max-width: 380px;
+        z-index: 1050;
+        box-shadow: 4px 0 25px rgba(0, 0, 0, 0.45);
+    }
+}
+
+@media (max-width: 480px) {
+    #sidebar {
+        width: 90vw;
+        max-width: 340px;
+    }
+
+    .sidebar-header {
+        padding: 12px 14px;
+    }
+
+    .sidebar-body {
+        padding: 12px 10px;
+    }
+
+    .btn-floating-sidebar {
+        top: 10px;
+        left: 10px;
+        padding: 8px 14px;
+        font-size: 0.85rem;
     }
 }
 
