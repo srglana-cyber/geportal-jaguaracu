@@ -1218,11 +1218,11 @@ a.author-credit-link:hover .author-credit-box {
     justify-content: space-between;
     border-bottom: 1px solid transparent;
     user-select: none;
-    transition: background-color 0.2s ease;
+    transition: filter 0.2s ease;
 }
 
 .category-header:hover {
-    background: #f1f5f9;
+    filter: brightness(0.97);
 }
 
 .layer-category-group:not(.collapsed) .category-header {

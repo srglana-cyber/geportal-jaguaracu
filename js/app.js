@@ -236,20 +236,33 @@ document.addEventListener('DOMContentLoaded', () => {
                 const uantr = (p.nm_uantr || '').toLowerCase();
                 const leg = (p.legenda || p.legenda_2 || '').toLowerCase();
                 const sup = (p.leg_sup || '').toLowerCase();
+                const sec1 = (p.nm_sec1 || '').toLowerCase();
+                const fid = p.fid;
 
+                // 1. Pastagens e Pecuária
                 if (cd === 'AP' || uantr.includes('pecu') || uantr.includes('past') || leg.includes('pecu')) return 'PASTAGEM';
-                if (cd === 'RE' || uantr.includes('eucalipto') || uantr.includes('reflor') || leg.includes('reflorestamento')) return 'EUCALIPTO';
+
+                // 2. Influência Urbana e Edificações
                 if (cd === 'IU' || uantr.includes('urbana') || leg.includes('urbana')) return 'URBANO';
+
+                // 3. Corpos D'água Continentais
                 if (cd === 'MAGUA' || sup.includes('água') || leg.includes('água') || leg.includes('corpo')) return 'AGUA';
-                if (cd === 'F' || leg.includes('floresta') || uantr.includes('floresta')) return 'FLORESTA';
-                return 'OUTROS';
+
+                // 4. Floresta Nativa / Vegetação Secundária (Mata Atlântica / Floresta Estacional Semidecidual)
+                // O polígono fid: 5 corresponde à cobertura de Floresta Nativa contínua (com Vsp - Vegetação Secundária)
+                if (fid === 5 || sec1.includes('secundária') || cd === 'F') return 'FLORESTA';
+
+                // 5. Silvicultura / Eucaliptos (Parcelas de Reflorestamento - fid: 4)
+                if (cd === 'RE' || cd === 'R' || uantr.includes('eucalipto') || uantr.includes('reflor') || leg.includes('reflorestamento')) return 'EUCALIPTO';
+
+                return 'FLORESTA';
             },
             classes: {
+                'FLORESTA': { label: 'Floresta Nativa / Veg. Secundária (F)', color: '#14532d', fill: '#16a34a' },
+                'EUCALIPTO': { label: 'Silvicultura / Eucaliptos (Re)', color: '#65a30d', fill: '#84cc16' },
                 'PASTAGEM': { label: 'Pecuária / Pastagens (Ap)', color: '#ca8a04', fill: '#facc15' },
-                'EUCALIPTO': { label: 'Silvicultura / Eucaliptos (Re)', color: '#14532d', fill: '#16a34a' },
                 'URBANO': { label: 'Influência Urbana / Edificações (Iu)', color: '#be123c', fill: '#f43f5e' },
                 'AGUA': { label: 'Corpos D\'água Continentais (Magua)', color: '#0284c7', fill: '#38bdf8' },
-                'FLORESTA': { label: 'Floresta Nativa / Veg. Secundária (F)', color: '#15803d', fill: '#4ade80' },
                 'OUTROS': { label: 'Outras Áreas Antrópicas', color: '#b45309', fill: '#d97706' }
             }
         },
@@ -886,41 +899,54 @@ document.addEventListener('DOMContentLoaded', () => {
     // --------------------------------------------------------------------------
     const containerCamadas = document.getElementById('layers-list-container');
 
-    // 6 Categorias Temáticas Solicitadas
+    // 5 Categorias Temáticas Solicitadas
     const LAYER_CATEGORIES = [
         {
             id: 'divisao_politico_administrativa',
             name: 'Divisão Político-Administrativa',
             icon: 'fa-landmark-flag',
-            color: '#7e22ce',
+            color: '#7c3aed',
+            bgLight: '#f5f3ff',
+            border: '#c4b5fd',
             layers: ['mascara', 'distritos', 'setores_censitarios', 'sede_municipal']
         },
         {
             id: 'meio_ambiente_recursos_hidricos',
             name: 'Meio Ambiente e Recursos Hídricos',
             icon: 'fa-leaf',
-            color: '#15803d',
-            layers: ['apa', 'areas_prioritarias_conservacao', 'vegetacao', 'car', 'circunscricoes_hidrograficas', 'hidrografia', 'nascentes']
-        },
-        {
-            id: 'geologia_geomorfologia',
-            name: 'Geologia e Geomorfologia',
-            icon: 'fa-mountain-sun',
-            color: '#b45309',
-            layers: ['geologia', 'geomorfologia', 'pedologia', 'erosao']
+            color: '#059669',
+            bgLight: '#ecfdf5',
+            border: '#a7f3d0',
+            layers: [
+                'apa',
+                'areas_prioritarias_conservacao',
+                'vegetacao',
+                'car',
+                'circunscricoes_hidrograficas',
+                'hidrografia',
+                'nascentes',
+                'geologia',
+                'geomorfologia',
+                'pedologia',
+                'erosao'
+            ]
         },
         {
             id: 'infraestrutura_transporte',
             name: 'Infraestrutura e Transporte',
             icon: 'fa-road',
             color: '#ea580c',
+            bgLight: '#fff7ed',
+            border: '#fed7aa',
             layers: ['rodovia_federal', 'rodovias', 'estradas_municipais', 'faces_logradouros']
         },
         {
             id: 'turismo',
             name: 'Turismo',
             icon: 'fa-camera',
-            color: '#d97706',
+            color: '#db2777',
+            bgLight: '#fdf2f8',
+            border: '#fbcfe8',
             layers: ['atrativos_turisticos', 'cicloturismo']
         },
         {
@@ -928,6 +954,8 @@ document.addEventListener('DOMContentLoaded', () => {
             name: 'Equipamentos Urbanos e Serviços Públicos',
             icon: 'fa-hospital-user',
             color: '#2563eb',
+            bgLight: '#eff6ff',
+            border: '#bfdbfe',
             layers: ['estabelecimento_saude', 'escolas', 'propriedades_rurais']
         }
     ];
@@ -1091,19 +1119,21 @@ document.addEventListener('DOMContentLoaded', () => {
             const groupEl = document.createElement('div');
             groupEl.className = 'layer-category-group';
             groupEl.setAttribute('data-category-id', cat.id);
+            groupEl.style.borderLeft = `5px solid ${cat.color}`;
 
             const headerEl = document.createElement('div');
             headerEl.className = 'category-header';
+            headerEl.style.background = `linear-gradient(to right, ${cat.bgLight} 0%, #ffffff 100%)`;
             headerEl.innerHTML = `
                 <div class="category-header-title">
-                    <span class="category-icon" style="background: ${cat.color};">
+                    <span class="category-icon" style="background: ${cat.color}; box-shadow: 0 2px 6px ${cat.color}55;">
                         <i class="fas ${cat.icon}"></i>
                     </span>
-                    <span class="category-name">${cat.name}</span>
+                    <span class="category-name" style="color: #0f172a; font-weight: 700;">${cat.name}</span>
                     <span class="category-count">${cat.layers.length}</span>
-                    <span class="category-active-badge" id="cat-badge-${cat.id}" style="display: none;">0 ativas</span>
+                    <span class="category-active-badge" id="cat-badge-${cat.id}" style="display: none; background: ${cat.bgLight}; color: ${cat.color}; border: 1px solid ${cat.border};">0 ativas</span>
                 </div>
-                <i class="fas fa-chevron-down category-arrow"></i>
+                <i class="fas fa-chevron-down category-arrow" style="color: ${cat.color};"></i>
             `;
 
             const contentEl = document.createElement('div');
