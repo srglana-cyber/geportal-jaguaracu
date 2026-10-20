@@ -267,30 +267,44 @@ body, html {
 }
 
 .layer-card.dragging {
-    opacity: 0.5;
+    opacity: 0.45;
     background: #eff6ff;
     border: 2px dashed #2563eb;
+    box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
 }
 
 .layer-card.drag-over {
-    border-top: 3px solid #2563eb;
+    border-top: 3px solid #2563eb !important;
     transform: translateY(2px);
+}
+
+.layer-card.drag-over-bottom {
+    border-bottom: 3px solid #2563eb !important;
+    transform: translateY(-2px);
 }
 
 .drag-handle {
     cursor: grab;
-    color: #94a3b8;
-    padding: 4px 6px;
-    border-radius: 4px;
+    user-select: none;
+    -webkit-user-select: none;
+    touch-action: none;
+    color: #64748b;
+    padding: 6px 8px;
+    margin-right: 2px;
+    border-radius: 6px;
     display: flex;
     align-items: center;
     justify-content: center;
-    transition: color 0.2s ease;
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    transition: all 0.2s ease;
 }
 
 .drag-handle:hover {
-    color: var(--accent-color);
-    background: #f1f5f9;
+    color: #2563eb;
+    background: #eff6ff;
+    border-color: #bfdbfe;
+    transform: scale(1.05);
 }
 
 .drag-handle:active {
@@ -306,6 +320,8 @@ body, html {
     align-items: center;
     justify-content: space-between;
     margin-bottom: 8px;
+    user-select: none;
+    -webkit-user-select: none;
 }
 
 .layer-title-group {

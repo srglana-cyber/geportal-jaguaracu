@@ -1173,16 +1173,24 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // Atualizar badges com contagem de camadas ativas em cada categoria
+    // Atualizar badges com contagem de camadas ativas e total em cada categoria
     function updateCategoryBadges() {
-        LAYER_CATEGORIES.forEach(cat => {
+        document.querySelectorAll('.layer-category-group').forEach(group => {
+            const catId = group.getAttribute('data-category-id');
+            const badge = document.getElementById(`cat-badge-${catId}`);
+            const countEl = group.querySelector('.category-count');
+            const cards = group.querySelectorAll('.layer-card');
+
+            if (countEl) {
+                countEl.textContent = cards.length;
+            }
+
             let activeCount = 0;
-            cat.layers.forEach(layerId => {
-                const chk = document.querySelector(`.layer-toggle[data-layer="${layerId}"]`);
+            cards.forEach(card => {
+                const chk = card.querySelector('.layer-toggle');
                 if (chk && chk.checked) activeCount++;
             });
 
-            const badge = document.getElementById(`cat-badge-${cat.id}`);
             if (badge) {
                 if (activeCount > 0) {
                     badge.innerText = `${activeCount} ativa${activeCount > 1 ? 's' : ''}`;
@@ -1528,7 +1536,7 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 
     // --------------------------------------------------------------------------
-    // 11. Reordenação de Camadas por Arrasto (Drag-and-Drop)
+    // 11. Reordenação de Camadas por Arrasto (Drag-and-Drop) - Desktop e Mobile
     // --------------------------------------------------------------------------
     function initLayerReordering() {
         const listContainer = document.getElementById('layers-list-container');
@@ -1536,39 +1544,162 @@ document.addEventListener('DOMContentLoaded', () => {
 
         let draggedCard = null;
 
+        function finalizeReorder() {
+            if (draggedCard) {
+                draggedCard.classList.remove('dragging');
+            }
+            document.querySelectorAll('.layer-card').forEach(c => {
+                c.classList.remove('drag-over');
+                c.classList.remove('drag-over-bottom');
+            });
+            draggedCard = null;
+            updateCategoryBadges();
+            updateMapLayersOrder();
+        }
+
+        // --- Mouse / HTML5 Drag and Drop ---
         listContainer.addEventListener('dragstart', (e) => {
+            // Evitar iniciar arrasto ao interagir com inputs, selects, botões ou painéis internos
+            if (e.target.closest('input, select, button, .btn-download-kml, .btn-symbology-toggle, .classes-legend-panel, .class-color-input')) {
+                e.preventDefault();
+                return;
+            }
+
             const card = e.target.closest('.layer-card');
             if (card) {
                 draggedCard = card;
                 card.classList.add('dragging');
-                e.dataTransfer.effectAllowed = 'move';
+                if (e.dataTransfer) {
+                    e.dataTransfer.effectAllowed = 'move';
+                    e.dataTransfer.setData('text/plain', card.getAttribute('data-layer-id') || 'layer');
+                }
             }
         });
 
-        listContainer.addEventListener('dragend', (e) => {
-            const card = e.target.closest('.layer-card');
-            if (card) {
-                card.classList.remove('dragging');
-            }
-            document.querySelectorAll('.layer-card').forEach(c => c.classList.remove('drag-over'));
-            draggedCard = null;
-            updateMapLayersOrder();
+        listContainer.addEventListener('dragend', () => {
+            finalizeReorder();
+        });
+
+        listContainer.addEventListener('drop', (e) => {
+            e.preventDefault();
+            finalizeReorder();
         });
 
         listContainer.addEventListener('dragover', (e) => {
             e.preventDefault();
+            if (!draggedCard) return;
+
+            if (e.dataTransfer) {
+                e.dataTransfer.dropEffect = 'move';
+            }
+
+            // Auto-expandir categoria se arrastar sobre o cabeçalho colapsado
+            const overHeader = e.target.closest('.category-header');
+            if (overHeader) {
+                const group = overHeader.closest('.layer-category-group');
+                if (group && group.classList.contains('collapsed')) {
+                    group.classList.remove('collapsed');
+                }
+            }
+
             const overCard = e.target.closest('.layer-card');
             if (overCard && overCard !== draggedCard) {
-                document.querySelectorAll('.layer-card').forEach(c => c.classList.remove('drag-over'));
-                overCard.classList.add('drag-over');
+                const targetContainer = overCard.parentNode;
+                if (!targetContainer) return;
+
+                document.querySelectorAll('.layer-card').forEach(c => {
+                    if (c !== overCard) {
+                        c.classList.remove('drag-over');
+                        c.classList.remove('drag-over-bottom');
+                    }
+                });
 
                 const rect = overCard.getBoundingClientRect();
                 const midY = rect.top + rect.height / 2;
+
                 if (e.clientY < midY) {
-                    listContainer.insertBefore(draggedCard, overCard);
+                    overCard.classList.remove('drag-over-bottom');
+                    overCard.classList.add('drag-over');
+                    targetContainer.insertBefore(draggedCard, overCard);
                 } else {
-                    listContainer.insertBefore(draggedCard, overCard.nextSibling);
+                    overCard.classList.remove('drag-over');
+                    overCard.classList.add('drag-over-bottom');
+                    targetContainer.insertBefore(draggedCard, overCard.nextSibling);
                 }
+                return;
+            }
+
+            // Se estiver arrastando sobre o espaço de conteúdo da categoria (ex: vazio ou final)
+            const overCategoryContent = e.target.closest('.category-content');
+            if (overCategoryContent && !overCard && draggedCard.parentNode !== overCategoryContent) {
+                overCategoryContent.appendChild(draggedCard);
+            }
+        });
+
+        listContainer.addEventListener('dragleave', (e) => {
+            const card = e.target.closest('.layer-card');
+            if (card) {
+                card.classList.remove('drag-over');
+                card.classList.remove('drag-over-bottom');
+            }
+        });
+
+        // --- Suporte a Toque em Dispositivos Móveis (via .drag-handle) ---
+        let touchCard = null;
+
+        listContainer.addEventListener('touchstart', (e) => {
+            const handle = e.target.closest('.drag-handle');
+            if (!handle) return;
+            const card = handle.closest('.layer-card');
+            if (!card) return;
+
+            touchCard = card;
+            touchCard.classList.add('dragging');
+        }, { passive: true });
+
+        listContainer.addEventListener('touchmove', (e) => {
+            if (!touchCard) return;
+            const touch = e.touches[0];
+            const elUnderFinger = document.elementFromPoint(touch.clientX, touch.clientY);
+            if (!elUnderFinger) return;
+
+            const overCard = elUnderFinger.closest('.layer-card');
+            if (overCard && overCard !== touchCard) {
+                const targetContainer = overCard.parentNode;
+                if (!targetContainer) return;
+
+                const rect = overCard.getBoundingClientRect();
+                const midY = rect.top + rect.height / 2;
+
+                if (touch.clientY < midY) {
+                    targetContainer.insertBefore(touchCard, overCard);
+                } else {
+                    targetContainer.insertBefore(touchCard, overCard.nextSibling);
+                }
+                if (e.cancelable) e.preventDefault();
+                return;
+            }
+
+            const overCategoryContent = elUnderFinger.closest('.category-content');
+            if (overCategoryContent && !overCard && touchCard.parentNode !== overCategoryContent) {
+                overCategoryContent.appendChild(touchCard);
+                if (e.cancelable) e.preventDefault();
+            }
+        }, { passive: false });
+
+        listContainer.addEventListener('touchend', () => {
+            if (touchCard) {
+                touchCard.classList.remove('dragging');
+                touchCard = null;
+                finalizeReorder();
+            }
+        });
+
+        listContainer.addEventListener('touchcancel', () => {
+            if (touchCard) {
+                touchCard.classList.remove('dragging');
+                touchCard = null;
+                finalizeReorder();
             }
         });
     }
