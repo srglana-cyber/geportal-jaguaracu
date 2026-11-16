@@ -717,7 +717,57 @@ document.addEventListener('DOMContentLoaded', () => {
             style: { color: '#ffffff', fillColor: '#15803d', radius: 6.5, weight: 2 },
             baseZIndex: 605
         },
-        // --- Camadas Raster: Vulnerabilidade Ambiental (Imagens TIF) ---
+        // --- Camadas da Bacia do Onça Grande & Vulnerabilidade Ambiental ---
+        {
+            id: 'limite_onca_grande',
+            name: 'Limite da Bacia do Onça Grande',
+            varName: 'GEO_DATA_limite_onca_grande',
+            badge: 'Bacia',
+            geomType: 'polygon',
+            active: true,
+            style: { color: '#b91c1c', weight: 2.8, dashArray: '6, 4', fill: false, opacity: 0.95 },
+            baseZIndex: 420
+        },
+        {
+            id: 'hidrografia_2',
+            name: 'Drenagem e Rede Hidrográfica (Onça Grande)',
+            varName: 'GEO_DATA_hidrografia_2',
+            badge: 'Drenagem 3D',
+            geomType: 'line',
+            active: true,
+            style: { color: '#0284c7', weight: 2.2, opacity: 0.95 },
+            customStyler: (feature) => {
+                const props = feature.properties || {};
+                const ordem = props.ORDEM || props.NUORDEMCDA || 1;
+                return {
+                    color: ordem >= 3 ? '#0369a1' : (ordem === 2 ? '#0284c7' : '#38bdf8'),
+                    weight: ordem >= 3 ? 3.8 : (ordem === 2 ? 2.6 : 1.8),
+                    opacity: 0.95
+                };
+            },
+            baseZIndex: 495
+        },
+        {
+            id: 'raster_relevo_sombreado',
+            name: 'Relevo Sombreado 3D (Hillshade)',
+            type: 'raster',
+            url: 'rasters/raster_relevo_sombreado.png',
+            bounds: [
+                [-19.7526389, -42.7754167],
+                [-19.6059722, -42.6940278]
+            ],
+            tifUrl: 'TIF/relevo_sobreado.tif',
+            badge: 'Relevo 3D',
+            active: true,
+            opacity: 0.85,
+            baseZIndex: 370,
+            legend: {
+                type: 'relief',
+                title: 'Relevo Sombreado 3D (Hillshade)',
+                desc: 'Efeito tridimensional de iluminação solar sobre vertentes e fundos de vale da drenagem'
+            }
+        },
+        // --- Camadas Raster: Vulnerabilidade Ambiental (5 Classes Categorizadas) ---
         {
             id: 'raster_geomorfologia',
             name: 'Vulnerabilidade do Relevo e Declividade',
@@ -728,15 +778,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 [-19.6059888, -42.6941605]
             ],
             tifUrl: 'TIF/geomorfologia_certo.tif',
-            badge: 'Raster',
+            badge: 'Declividade',
             active: false,
             opacity: 0.75,
             baseZIndex: 375,
             legend: {
-                title: 'Grau de Vulnerabilidade do Relevo / Declividade',
-                min: '1.0 (Estável)',
-                max: '3.0 (Vulnerável)',
-                gradient: 'linear-gradient(to right, #166534, #22c55e, #84cc16, #eab308, #f97316, #dc2626)'
+                type: 'classes',
+                title: 'Vulnerabilidade do Relevo e Declividade',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
             }
         },
         {
@@ -749,15 +804,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 [-19.6059873, -42.6940632]
             ],
             tifUrl: 'TIF/perda_solos.tif',
-            badge: 'Raster',
+            badge: 'Erosão',
             active: false,
             opacity: 0.75,
             baseZIndex: 376,
             legend: {
+                type: 'classes',
                 title: 'Perda Estimada de Solos (t/ha.ano)',
-                min: '14.0 (Baixa)',
-                max: '25.0 (Alta)',
-                gradient: 'linear-gradient(to right, #22c55e, #84cc16, #eab308, #f97316, #dc2626)'
+                classes: [
+                    { label: 'Muito baixa (14.0 - 16.2)', color: '#1C9440' },
+                    { label: 'Baixa (16.2 - 18.4)', color: '#A7D96A' },
+                    { label: 'Média (18.4 - 20.6)', color: '#FFFFC2' },
+                    { label: 'Alta (20.6 - 22.8)', color: '#FCAD62' },
+                    { label: 'Muito Alta (22.8 - 25.0)', color: '#D41919' }
+                ]
             }
         },
         {
@@ -770,15 +830,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 [-19.6060360, -42.6942193]
             ],
             tifUrl: 'TIF/pedologia.tif',
-            badge: 'Raster',
+            badge: 'Solos',
             active: false,
             opacity: 0.75,
             baseZIndex: 377,
             legend: {
+                type: 'classes',
                 title: 'Vulnerabilidade Pedológica',
-                min: '1.0 (Estável)',
-                max: '2.5 (Moderada)',
-                gradient: 'linear-gradient(to right, #166534, #84cc16, #eab308, #f97316)'
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
             }
         },
         {
@@ -791,15 +856,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 [-19.6059203, -42.6940991]
             ],
             tifUrl: 'TIF/geologia.tif',
-            badge: 'Raster',
+            badge: 'Geologia',
             active: false,
             opacity: 0.75,
             baseZIndex: 378,
             legend: {
+                type: 'classes',
                 title: 'Vulnerabilidade Litológica',
-                min: '1.1 (Estável)',
-                max: '3.0 (Vulnerável)',
-                gradient: 'linear-gradient(to right, #166534, #22c55e, #eab308, #f97316, #dc2626)'
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
             }
         },
         {
@@ -812,15 +882,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 [-19.6060360, -42.6942193]
             ],
             tifUrl: 'TIF/vegetacao.tif',
-            badge: 'Raster',
+            badge: 'Vegetação',
             active: false,
             opacity: 0.75,
             baseZIndex: 379,
             legend: {
+                type: 'classes',
                 title: 'Vulnerabilidade da Vegetação e Uso da Terra',
-                min: '1.6 (Estável)',
-                max: '3.0 (Antrópica/Vulnerável)',
-                gradient: 'linear-gradient(to right, #166534, #84cc16, #eab308, #dc2626)'
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
             }
         },
         {
@@ -833,15 +908,20 @@ document.addEventListener('DOMContentLoaded', () => {
                 [-19.6094863, -42.6980979]
             ],
             tifUrl: 'TIF/clima.tif',
-            badge: 'Raster',
+            badge: 'Clima',
             active: false,
             opacity: 0.75,
             baseZIndex: 374,
             legend: {
+                type: 'classes',
                 title: 'Vulnerabilidade Climática Regional',
-                min: '1.5 (Moderada)',
-                max: '1.5 (Homogênea)',
-                gradient: 'linear-gradient(to right, #38bdf8, #0284c7)'
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa (1.5)', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
             }
         }
     ];
@@ -1091,6 +1171,9 @@ document.addEventListener('DOMContentLoaded', () => {
             bgLight: '#fef2f2',
             border: '#f87171',
             layers: [
+                'limite_onca_grande',
+                'hidrografia_2',
+                'raster_relevo_sombreado',
                 'raster_geomorfologia',
                 'raster_perda_solos',
                 'raster_pedologia',
@@ -1242,17 +1325,42 @@ document.addEventListener('DOMContentLoaded', () => {
                     <span class="opacity-label">Opacidade:</span>
                     <input type="range" class="opacity-slider" data-layer="${cfg.id}" min="0" max="1" step="0.05" value="${initialOpacity}">
                 </div>
-                ${cfg.legend ? `
-                <div style="margin-top: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
-                    <div style="font-size: 0.68rem; font-weight: 600; color: #475569; margin-bottom: 3px;">
-                        ${cfg.legend.title}
-                    </div>
-                    <div style="height: 10px; border-radius: 3px; background: ${cfg.legend.gradient}; border: 1px solid #cbd5e1;"></div>
-                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #64748b; margin-top: 2px;">
-                        <span>${cfg.legend.min}</span>
-                        <span>${cfg.legend.max}</span>
-                    </div>
-                </div>` : ''}
+                ${cfg.legend ? (
+                    cfg.legend.type === 'classes' ? `
+                    <div style="margin-top: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <div style="font-size: 0.68rem; font-weight: 600; color: #475569; margin-bottom: 5px;">
+                            ${cfg.legend.title}
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 3px; margin-bottom: 4px;">
+                            ${cfg.legend.classes.map(c => `
+                                <div style="display: flex; flex-direction: column; align-items: center; gap: 2px;">
+                                    <div style="width: 100%; height: 8px; border-radius: 2px; background: ${c.color}; border: 1px solid rgba(0,0,0,0.15);" title="${c.label}"></div>
+                                    <span style="font-size: 0.58rem; color: #64748b; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; text-align: center;">${c.label}</span>
+                                </div>
+                            `).join('')}
+                        </div>
+                    </div>` : (
+                    cfg.legend.type === 'relief' ? `
+                    <div style="margin-top: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <div style="font-size: 0.68rem; font-weight: 600; color: #475569; margin-bottom: 2px;">
+                            <i class="fas fa-mountain-sun" style="color: #64748b;"></i> ${cfg.legend.title}
+                        </div>
+                        <div style="font-size: 0.62rem; color: #64748b; line-height: 1.2;">
+                            ${cfg.legend.desc || 'Modelo de relevo sombreado 3D'}
+                        </div>
+                    </div>` : `
+                    <div style="margin-top: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+                        <div style="font-size: 0.68rem; font-weight: 600; color: #475569; margin-bottom: 3px;">
+                            ${cfg.legend.title}
+                        </div>
+                        <div style="height: 10px; border-radius: 3px; background: ${cfg.legend.gradient}; border: 1px solid #cbd5e1;"></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #64748b; margin-top: 2px;">
+                            <span>${cfg.legend.min}</span>
+                            <span>${cfg.legend.max}</span>
+                        </div>
+                    </div>`
+                    )
+                ) : ''}
             `;
             return card;
         }
@@ -1448,8 +1556,58 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const statusBadge = '<span style="color: #15803d; background: #dcfce7; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Ativa</span>';
 
-            // Legenda para Camadas Raster (Gradiente de Vulnerabilidade Ambiental)
+            // Legenda para Camadas Raster (Vulnerabilidade Ambiental em 5 Classes ou Relevo Sombreado)
             if (cfg.type === 'raster' && cfg.legend) {
+                let contentHtml = '';
+                if (cfg.legend.type === 'classes') {
+                    let classItems = '';
+                    cfg.legend.classes.forEach(c => {
+                        classItems += `
+                            <div class="legend-item" style="margin-bottom: 4px; display: flex; align-items: center; gap: 8px;">
+                                <div class="legend-symbol" style="background: ${c.color}; border: 1px solid rgba(0,0,0,0.2); width: 18px; height: 18px; border-radius: 3px; flex-shrink: 0;"></div>
+                                <span style="font-size: 0.74rem; color: #334155; font-weight: 500;">${c.label}</span>
+                            </div>
+                        `;
+                    });
+                    contentHtml = `
+                        <div style="font-size: 0.73rem; font-weight: 600; color: #475569; margin-bottom: 6px;">
+                            ${cfg.legend.title}
+                        </div>
+                        <div style="padding-left: 2px;">
+                            ${classItems}
+                        </div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 6px;">
+                            <i class="fas fa-file-image"></i> Formato: GeoTIFF (.tif) categorizado
+                        </div>
+                    `;
+                } else if (cfg.legend.type === 'relief') {
+                    contentHtml = `
+                        <div style="font-size: 0.73rem; font-weight: 600; color: #475569; margin-bottom: 4px;">
+                            <i class="fas fa-mountain-sun" style="color: #64748b;"></i> ${cfg.legend.title}
+                        </div>
+                        <div style="font-size: 0.70rem; color: #64748b; line-height: 1.3;">
+                            ${cfg.legend.desc || 'Modelo de relevo sombreado 3D de alta precisão.'}
+                        </div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 6px;">
+                            <i class="fas fa-cube"></i> Modelo Digital de Terreno (MDT / Hillshade)
+                        </div>
+                    `;
+                } else {
+                    contentHtml = `
+                        <div style="font-size: 0.73rem; font-weight: 600; color: #475569; margin-bottom: 4px;">
+                            ${cfg.legend.title}
+                        </div>
+                        <div style="height: 14px; border-radius: 4px; background: ${cfg.legend.gradient}; border: 1px solid #cbd5e1; margin-bottom: 4px;"></div>
+                        <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: #64748b; font-weight: 600;">
+                            <span>${cfg.legend.min}</span>
+                            <span>${cfg.legend.max}</span>
+                        </div>
+                        <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 4px;">
+                            <i class="fas fa-file-image"></i> Formato: GeoTIFF (.tif)
+                        </div>
+                    `;
+                }
+
                 html += `
                     <div class="legend-section" style="margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
                         <div class="legend-section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
@@ -1457,17 +1615,7 @@ document.addEventListener('DOMContentLoaded', () => {
                             ${statusBadge}
                         </div>
                         <div style="padding-left: 6px;">
-                            <div style="font-size: 0.73rem; font-weight: 600; color: #475569; margin-bottom: 4px;">
-                                ${cfg.legend.title}
-                            </div>
-                            <div style="height: 14px; border-radius: 4px; background: ${cfg.legend.gradient}; border: 1px solid #cbd5e1; margin-bottom: 4px;"></div>
-                            <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: #64748b; font-weight: 600;">
-                                <span>${cfg.legend.min}</span>
-                                <span>${cfg.legend.max}</span>
-                            </div>
-                            <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 4px;">
-                                <i class="fas fa-file-image"></i> Formato: GeoTIFF (.tif)
-                            </div>
+                            ${contentHtml}
                         </div>
                     </div>
                 `;
