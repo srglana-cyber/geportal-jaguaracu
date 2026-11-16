@@ -281,9 +281,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 return 'OUTROS';
             },
             classes: {
-                'LATOSSOLO': { label: 'Latossolo Vermelho-Amarelo', color: '#9a3412', fill: '#ea580c' },
-                'ARGISSOLO': { label: 'Argissolo Vermelho', color: '#b45309', fill: '#f97316' },
-                'CAMBISSOLO': { label: 'Cambissolo Háplico', color: '#ca8a04', fill: '#eab308' },
+                'LATOSSOLO': { label: 'Latossolo Vermelho-Amarelo', color: '#cc4400', fill: '#FF5500' },
+                'ARGISSOLO': { label: 'Argissolo Vermelho', color: '#cc5200', fill: '#FF6600' },
+                'CAMBISSOLO': { label: 'Cambissolo Háplico', color: '#a89679', fill: '#D7C5A5' },
                 'URBANA': { label: 'Área Urbana Consolidada', color: '#475569', fill: '#94a3b8' },
                 'OUTROS': { label: 'Outras Unidades Pedológicas', color: '#78350f', fill: '#a16207' }
             }
@@ -540,7 +540,7 @@ document.addEventListener('DOMContentLoaded', () => {
             geomType: 'polygon',
             active: false,
             isThematic: true,
-            style: { color: '#9a3412', weight: 1.5, fillColor: '#ea580c', fillOpacity: 0.4 },
+            style: { color: '#cc4400', weight: 1.5, fillColor: '#FF5500', fillOpacity: 0.4 },
             baseZIndex: 410
         },
         {
