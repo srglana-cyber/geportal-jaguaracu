@@ -1,0 +1,9 @@
+{
+"type": "FeatureCollection",
+"name": "minas",
+"crs": { "type": "name", "properties": { "name": "urn:ogc:def:crs:OGC:1.3:CRS84" } },
+"features": [
+{ "type": "Feature", "properties": { "id": 1, "Minas": "Quilombo" }, "geometry": { "type": "Point", "coordinates": [ -42.74656198917922, -19.650082584273854 ] } },
+{ "type": "Feature", "properties": { "id": 2, "Minas": "Pedreira do Artur" }, "geometry": { "type": "Point", "coordinates": [ -42.772481484894207, -19.674788108720815 ] } }
+]
+}

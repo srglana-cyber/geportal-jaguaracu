@@ -236,7 +236,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 const uantr = (p.nm_uantr || '').toLowerCase();
                 const leg = (p.legenda || p.legenda_2 || '').toLowerCase();
                 const sup = (p.leg_sup || '').toLowerCase();
-                const sec1 = (p.nm_sec1 || '').toLowerCase();
+                const sec1 = (p.nm_sec1 || p.leg_sec1 || '').toLowerCase();
+                const carga = (p.leg_carga || '').toLowerCase();
                 const fid = p.fid;
 
                 // 1. Pastagens e Pecuária
@@ -249,17 +250,17 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (cd === 'MAGUA' || sup.includes('água') || leg.includes('água') || leg.includes('corpo')) return 'AGUA';
 
                 // 4. Floresta Nativa / Vegetação Secundária (Mata Atlântica / Floresta Estacional Semidecidual)
-                // O polígono fid: 5 corresponde à cobertura de Floresta Nativa contínua (com Vsp - Vegetação Secundária)
-                if (fid === 5 || sec1.includes('secundária') || cd === 'F') return 'FLORESTA';
+                // O polígono fid: 5 corresponde à ampla área de vegetação nativa secundária contínua e APA
+                if (fid === 5 || carga.includes('vsp+ap') || sec1.includes('secund') || sec1.includes('vsp') || cd === 'F' || leg.includes('floresta')) return 'FLORESTA';
 
-                // 5. Silvicultura / Eucaliptos (Parcelas de Reflorestamento - fid: 4)
+                // 5. Silvicultura / Eucaliptos (Parcelas de Reflorestamento e Cultivo Comercial)
                 if (cd === 'RE' || cd === 'R' || uantr.includes('eucalipto') || uantr.includes('reflor') || leg.includes('reflorestamento')) return 'EUCALIPTO';
 
                 return 'FLORESTA';
             },
             classes: {
                 'FLORESTA': { label: 'Floresta Nativa / Veg. Secundária (F)', color: '#14532d', fill: '#16a34a' },
-                'EUCALIPTO': { label: 'Silvicultura / Eucaliptos (Re)', color: '#65a30d', fill: '#84cc16' },
+                'EUCALIPTO': { label: 'Silvicultura / Eucaliptos (Re)', color: '#6b21a8', fill: '#9351d3' },
                 'PASTAGEM': { label: 'Pecuária / Pastagens (Ap)', color: '#ca8a04', fill: '#facc15' },
                 'URBANO': { label: 'Influência Urbana / Edificações (Iu)', color: '#be123c', fill: '#f43f5e' },
                 'AGUA': { label: 'Corpos D\'água Continentais (Magua)', color: '#0284c7', fill: '#38bdf8' },
@@ -285,6 +286,30 @@ document.addEventListener('DOMContentLoaded', () => {
                 'CAMBISSOLO': { label: 'Cambissolo Háplico', color: '#ca8a04', fill: '#eab308' },
                 'URBANA': { label: 'Área Urbana Consolidada', color: '#475569', fill: '#94a3b8' },
                 'OUTROS': { label: 'Outras Unidades Pedológicas', color: '#78350f', fill: '#a16207' }
+            }
+        },
+
+        relevo_2026: {
+            title: 'Geomorfologia e Relevo (2026)',
+            fieldDesc: 'Compartimentos de Relevo',
+            getClass: (feat) => {
+                const p = feat.properties || {};
+                const comp = (p.Compartime || p.compartimento || p.COMPARTIME || p.nm_unidade || '').toLowerCase();
+                if (comp.includes('água') || comp.includes('agua') || comp.includes('corpo')) return 'CORPO_DAGUA';
+                if (comp.includes('montanha')) return 'MONTANHAS';
+                if (comp.includes('planalto')) return 'PLANALTOS';
+                if (comp.includes('planície') || comp.includes('planicie')) return 'PLANICIES';
+                if (comp.includes('rebaixada')) return 'SUPERFICIES_REBAIXADAS';
+                if (comp.includes('tabuleiro')) return 'TABULEIROS';
+                return 'PLANALTOS';
+            },
+            classes: {
+                'CORPO_DAGUA': { label: 'Corpo d’água', color: '#93c5fd', fill: '#E6F5FF' },
+                'MONTANHAS': { label: 'Montanhas', color: '#7f0000', fill: '#A80000' },
+                'PLANALTOS': { label: 'Planaltos', color: '#804d00', fill: '#A87000' },
+                'PLANICIES': { label: 'Planícies', color: '#d4b106', fill: '#FFFF00' },
+                'SUPERFICIES_REBAIXADAS': { label: 'Superfícies rebaixadas', color: '#a89370', fill: '#D7C29E' },
+                'TABULEIROS': { label: 'Tabuleiros', color: '#7c9e3b', fill: '#ABCD66' }
             }
         },
 
@@ -519,14 +544,14 @@ document.addEventListener('DOMContentLoaded', () => {
             baseZIndex: 410
         },
         {
-            id: 'geomorfologia',
-            name: 'Geomorfologia e Relevo',
-            varName: 'GEO_DATA_geomorfologia',
+            id: 'relevo_2026',
+            name: 'Relevo e Geomorfologia (2026)',
+            varName: 'GEO_DATA_relevo_2026',
             badge: 'Relevo',
             geomType: 'polygon',
             active: false,
             isThematic: true,
-            style: { color: '#78350f', weight: 1.5, fillColor: '#9a3412', fillOpacity: 0.4 },
+            style: { color: '#804d00', weight: 1.5, fillColor: '#A87000', fillOpacity: 0.45 },
             baseZIndex: 415
         },
         {
@@ -905,9 +930,9 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'divisao_politico_administrativa',
             name: 'Divisão Político-Administrativa',
             icon: 'fa-landmark-flag',
-            color: '#7c3aed',
-            bgLight: '#f5f3ff',
-            border: '#c4b5fd',
+            color: '#4f46e5',
+            bgLight: '#eef2ff',
+            border: '#a5b4fc',
             layers: ['mascara', 'distritos', 'setores_censitarios', 'sede_municipal']
         },
         {
@@ -916,7 +941,7 @@ document.addEventListener('DOMContentLoaded', () => {
             icon: 'fa-leaf',
             color: '#059669',
             bgLight: '#ecfdf5',
-            border: '#a7f3d0',
+            border: '#6ee7b7',
             layers: [
                 'apa',
                 'areas_prioritarias_conservacao',
@@ -926,7 +951,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 'hidrografia',
                 'nascentes',
                 'geologia',
-                'geomorfologia',
+                'relevo_2026',
                 'pedologia',
                 'erosao'
             ]
@@ -935,27 +960,27 @@ document.addEventListener('DOMContentLoaded', () => {
             id: 'infraestrutura_transporte',
             name: 'Infraestrutura e Transporte',
             icon: 'fa-road',
-            color: '#ea580c',
-            bgLight: '#fff7ed',
-            border: '#fed7aa',
+            color: '#d97706',
+            bgLight: '#fffbeb',
+            border: '#fcd34d',
             layers: ['rodovia_federal', 'rodovias', 'estradas_municipais', 'faces_logradouros']
         },
         {
             id: 'turismo',
             name: 'Turismo',
-            icon: 'fa-camera',
-            color: '#db2777',
-            bgLight: '#fdf2f8',
-            border: '#fbcfe8',
+            icon: 'fa-camera-retro',
+            color: '#e11d48',
+            bgLight: '#fff1f2',
+            border: '#fda4af',
             layers: ['atrativos_turisticos', 'cicloturismo']
         },
         {
             id: 'equipamentos_servicos_publicos',
             name: 'Equipamentos Urbanos e Serviços Públicos',
             icon: 'fa-hospital-user',
-            color: '#2563eb',
-            bgLight: '#eff6ff',
-            border: '#bfdbfe',
+            color: '#0284c7',
+            bgLight: '#f0f9ff',
+            border: '#7dd3fc',
             layers: ['estabelecimento_saude', 'escolas', 'propriedades_rurais']
         }
     ];
