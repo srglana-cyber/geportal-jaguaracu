@@ -290,8 +290,8 @@ document.addEventListener('DOMContentLoaded', () => {
         },
 
         relevo_2026: {
-            title: 'Geomorfologia e Relevo (2026)',
-            fieldDesc: 'Compartimentos de Relevo',
+            title: 'Relevo - macrocompartimentos',
+            fieldDesc: 'Macrocompartimentos de Relevo',
             getClass: (feat) => {
                 const p = feat.properties || {};
                 const comp = (p.Compartime || p.compartimento || p.COMPARTIME || p.nm_unidade || '').toLowerCase();
@@ -545,7 +545,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'relevo_2026',
-            name: 'Relevo e Geomorfologia (2026)',
+            name: 'Relevo - macrocompartimentos',
             varName: 'GEO_DATA_relevo_2026',
             badge: 'Relevo',
             geomType: 'polygon',
