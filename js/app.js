@@ -716,6 +716,133 @@ document.addEventListener('DOMContentLoaded', () => {
             active: false,
             style: { color: '#ffffff', fillColor: '#15803d', radius: 6.5, weight: 2 },
             baseZIndex: 605
+        },
+        // --- Camadas Raster: Vulnerabilidade Ambiental (Imagens TIF) ---
+        {
+            id: 'raster_geomorfologia',
+            name: 'Vulnerabilidade do Relevo e Declividade',
+            type: 'raster',
+            url: 'rasters/raster_geomorfologia.png',
+            bounds: [
+                [-19.7524335, -42.7753389],
+                [-19.6059888, -42.6941605]
+            ],
+            tifUrl: 'TIF/geomorfologia_certo.tif',
+            badge: 'Raster',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 375,
+            legend: {
+                title: 'Grau de Vulnerabilidade do Relevo / Declividade',
+                min: '1.0 (Estável)',
+                max: '3.0 (Vulnerável)',
+                gradient: 'linear-gradient(to right, #166534, #22c55e, #84cc16, #eab308, #f97316, #dc2626)'
+            }
+        },
+        {
+            id: 'raster_perda_solos',
+            name: 'Perda de Solos / Erosão (USLE)',
+            type: 'raster',
+            url: 'rasters/raster_perda_solos.png',
+            bounds: [
+                [-19.7526122, -42.7755802],
+                [-19.6059873, -42.6940632]
+            ],
+            tifUrl: 'TIF/perda_solos.tif',
+            badge: 'Raster',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 376,
+            legend: {
+                title: 'Perda Estimada de Solos (t/ha.ano)',
+                min: '14.0 (Baixa)',
+                max: '25.0 (Alta)',
+                gradient: 'linear-gradient(to right, #22c55e, #84cc16, #eab308, #f97316, #dc2626)'
+            }
+        },
+        {
+            id: 'raster_pedologia',
+            name: 'Vulnerabilidade Pedológica (Solos)',
+            type: 'raster',
+            url: 'rasters/raster_pedologia.png',
+            bounds: [
+                [-19.7524406, -42.7755252],
+                [-19.6060360, -42.6942193]
+            ],
+            tifUrl: 'TIF/pedologia.tif',
+            badge: 'Raster',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 377,
+            legend: {
+                title: 'Vulnerabilidade Pedológica',
+                min: '1.0 (Estável)',
+                max: '2.5 (Moderada)',
+                gradient: 'linear-gradient(to right, #166534, #84cc16, #eab308, #f97316)'
+            }
+        },
+        {
+            id: 'raster_geologia',
+            name: 'Vulnerabilidade Litológica (Geologia)',
+            type: 'raster',
+            url: 'rasters/raster_geologia.png',
+            bounds: [
+                [-19.7525919, -42.7754032],
+                [-19.6059203, -42.6940991]
+            ],
+            tifUrl: 'TIF/geologia.tif',
+            badge: 'Raster',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 378,
+            legend: {
+                title: 'Vulnerabilidade Litológica',
+                min: '1.1 (Estável)',
+                max: '3.0 (Vulnerável)',
+                gradient: 'linear-gradient(to right, #166534, #22c55e, #eab308, #f97316, #dc2626)'
+            }
+        },
+        {
+            id: 'raster_vegetacao',
+            name: 'Vulnerabilidade da Cobertura Vegetal',
+            type: 'raster',
+            url: 'rasters/raster_vegetacao.png',
+            bounds: [
+                [-19.7524406, -42.7755252],
+                [-19.6060360, -42.6942193]
+            ],
+            tifUrl: 'TIF/vegetacao.tif',
+            badge: 'Raster',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 379,
+            legend: {
+                title: 'Vulnerabilidade da Vegetação e Uso da Terra',
+                min: '1.6 (Estável)',
+                max: '3.0 (Antrópica/Vulnerável)',
+                gradient: 'linear-gradient(to right, #166534, #84cc16, #eab308, #dc2626)'
+            }
+        },
+        {
+            id: 'raster_clima',
+            name: 'Vulnerabilidade Climática',
+            type: 'raster',
+            url: 'rasters/raster_clima.png',
+            bounds: [
+                [-19.7493808, -42.7727082],
+                [-19.6094863, -42.6980979]
+            ],
+            tifUrl: 'TIF/clima.tif',
+            badge: 'Raster',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 374,
+            legend: {
+                title: 'Vulnerabilidade Climática Regional',
+                min: '1.5 (Moderada)',
+                max: '1.5 (Homogênea)',
+                gradient: 'linear-gradient(to right, #38bdf8, #0284c7)'
+            }
         }
     ];
 
@@ -957,6 +1084,22 @@ document.addEventListener('DOMContentLoaded', () => {
             ]
         },
         {
+            id: 'vulnerabilidade_ambiental',
+            name: 'Vulnerabilidade Ambiental',
+            icon: 'fa-shield-halved',
+            color: '#b91c1c',
+            bgLight: '#fef2f2',
+            border: '#f87171',
+            layers: [
+                'raster_geomorfologia',
+                'raster_perda_solos',
+                'raster_pedologia',
+                'raster_geologia',
+                'raster_vegetacao',
+                'raster_clima'
+            ]
+        },
+        {
             id: 'infraestrutura_transporte',
             name: 'Infraestrutura e Transporte',
             icon: 'fa-road',
@@ -987,6 +1130,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Criar instâncias do Leaflet para cada camada
     LAYERS_CONFIG.forEach(cfg => {
+        // Suporte a camadas Raster (GeoTIFF / ImageOverlay)
+        if (cfg.type === 'raster') {
+            const paneName = `${cfg.id}Pane`;
+            if (!map.getPane(paneName)) {
+                map.createPane(paneName);
+                map.getPane(paneName).style.zIndex = cfg.baseZIndex || 375;
+            }
+
+            const rasterLayer = L.imageOverlay(cfg.url, cfg.bounds, {
+                pane: paneName,
+                opacity: cfg.opacity !== undefined ? cfg.opacity : 0.75,
+                interactive: true
+            });
+
+            layersGroup[cfg.id] = rasterLayer;
+            if (cfg.active) {
+                rasterLayer.addTo(map);
+            }
+            return;
+        }
+
         const geojsonData = window[cfg.varName];
         if (!geojsonData) {
             console.warn(`Arquivo de dados não encontrado para a camada: ${cfg.varName}`);
@@ -1053,6 +1217,45 @@ document.addEventListener('DOMContentLoaded', () => {
         card.className = 'layer-card';
         card.setAttribute('draggable', 'true');
         card.setAttribute('data-layer-id', cfg.id);
+
+        // Renderização para camadas Raster
+        if (cfg.type === 'raster') {
+            const initialOpacity = cfg.opacity !== undefined ? cfg.opacity : 0.75;
+            card.innerHTML = `
+                <div class="layer-header">
+                    <div class="drag-handle" title="Clique e arraste para reordenar a sobreposição desta camada">
+                        <i class="fas fa-grip-vertical"></i>
+                    </div>
+                    <label class="layer-title-group" style="flex: 1;">
+                        <input type="checkbox" class="layer-toggle" data-layer="${cfg.id}" ${cfg.active ? 'checked' : ''}>
+                        <span class="layer-name">${cfg.name}</span>
+                    </label>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span class="layer-badge" style="background: #fee2e2; color: #991b1b; border: 1px solid #fecaca;"><i class="fas fa-image"></i> Raster</span>
+                        ${cfg.tifUrl ? `
+                        <a href="${cfg.tifUrl}" download class="btn-download-kml" style="text-decoration: none;" title="Baixar arquivo GeoTIFF (.tif) original">
+                            <i class="fas fa-file-arrow-down"></i> TIF
+                        </a>` : ''}
+                    </div>
+                </div>
+                <div class="layer-controls">
+                    <span class="opacity-label">Opacidade:</span>
+                    <input type="range" class="opacity-slider" data-layer="${cfg.id}" min="0" max="1" step="0.05" value="${initialOpacity}">
+                </div>
+                ${cfg.legend ? `
+                <div style="margin-top: 6px; padding: 6px 8px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 6px;">
+                    <div style="font-size: 0.68rem; font-weight: 600; color: #475569; margin-bottom: 3px;">
+                        ${cfg.legend.title}
+                    </div>
+                    <div style="height: 10px; border-radius: 3px; background: ${cfg.legend.gradient}; border: 1px solid #cbd5e1;"></div>
+                    <div style="display: flex; justify-content: space-between; font-size: 0.65rem; color: #64748b; margin-top: 2px;">
+                        <span>${cfg.legend.min}</span>
+                        <span>${cfg.legend.max}</span>
+                    </div>
+                </div>` : ''}
+            `;
+            return card;
+        }
 
         const initialOpacity = cfg.style.fillOpacity !== undefined ? cfg.style.fillOpacity : (cfg.style.opacity || 0.7);
         const strokeColor = cfg.style.color || '#3b82f6';
@@ -1244,6 +1447,32 @@ document.addEventListener('DOMContentLoaded', () => {
             if (!isLayerActive) return;
 
             const statusBadge = '<span style="color: #15803d; background: #dcfce7; font-size: 0.65rem; padding: 2px 6px; border-radius: 4px; font-weight: 700;">Ativa</span>';
+
+            // Legenda para Camadas Raster (Gradiente de Vulnerabilidade Ambiental)
+            if (cfg.type === 'raster' && cfg.legend) {
+                html += `
+                    <div class="legend-section" style="margin-bottom: 14px; padding-bottom: 10px; border-bottom: 1px solid #e2e8f0;">
+                        <div class="legend-section-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                            <span><i class="fas fa-image" style="color: #b91c1c;"></i> ${cfg.name}</span>
+                            ${statusBadge}
+                        </div>
+                        <div style="padding-left: 6px;">
+                            <div style="font-size: 0.73rem; font-weight: 600; color: #475569; margin-bottom: 4px;">
+                                ${cfg.legend.title}
+                            </div>
+                            <div style="height: 14px; border-radius: 4px; background: ${cfg.legend.gradient}; border: 1px solid #cbd5e1; margin-bottom: 4px;"></div>
+                            <div style="display: flex; justify-content: space-between; font-size: 0.68rem; color: #64748b; font-weight: 600;">
+                                <span>${cfg.legend.min}</span>
+                                <span>${cfg.legend.max}</span>
+                            </div>
+                            <div style="font-size: 0.68rem; color: #94a3b8; margin-top: 4px;">
+                                <i class="fas fa-file-image"></i> Formato: GeoTIFF (.tif)
+                            </div>
+                        </div>
+                    </div>
+                `;
+                return;
+            }
 
             const tCfg = THEMATIC_CONFIG[cfg.id];
 
@@ -1478,15 +1707,22 @@ document.addEventListener('DOMContentLoaded', () => {
             const targetLayer = layersGroup[layerKey];
             const val = parseFloat(e.target.value);
             if (targetLayer) {
+                // Suporte para ImageOverlay (Raster)
+                if (targetLayer.setOpacity) {
+                    targetLayer.setOpacity(val);
+                }
+                // Suporte para GeoJSON vetorial
                 if (targetLayer.setStyle) {
                     targetLayer.setStyle({
                         fillOpacity: val,
                         opacity: Math.min(val + 0.3, 1)
                     });
                 }
-                targetLayer.eachLayer(l => {
-                    if (l._icon) l._icon.style.opacity = val;
-                });
+                if (targetLayer.eachLayer) {
+                    targetLayer.eachLayer(l => {
+                        if (l._icon) l._icon.style.opacity = val;
+                    });
+                }
             }
         }
     });
@@ -1797,7 +2033,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             const files = Array.from(e.dataTransfer.files).filter(f => f.name.endsWith('.geojson') || f.name.endsWith('.json'));
             if (files.length === 0) {
-                alert('Por favor, solte apenas arquivos com extensão .geojson ou .json');
+                alert('Por favor, solte arquivos .geojson, .json ou imagens .png/.jpg/.tif');
                 return;
             }
             files.forEach(file => processGeoJSONFile(file));
@@ -1805,17 +2041,70 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     function processGeoJSONFile(file) {
-        const reader = new FileReader();
-        reader.onload = (event) => {
-            try {
-                const geojsonData = JSON.parse(event.target.result);
-                const layerName = file.name.replace(/\.(geojson|json)$/i, '');
-                addDynamicGeoJSONLayer(layerName, geojsonData);
-            } catch (err) {
-                alert(`Erro ao ler o arquivo GeoJSON: ${err.message}`);
-            }
+        const ext = file.name.split('.').pop().toLowerCase();
+        if (['png', 'jpg', 'jpeg', 'webp'].includes(ext)) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const currentBounds = map.getBounds();
+                const layerName = file.name.replace(/\.[^/.]+$/, '');
+                addDynamicRasterLayer(layerName, e.target.result, currentBounds);
+            };
+            reader.readAsDataURL(file);
+        } else if (['tif', 'tiff'].includes(ext)) {
+            alert(`O arquivo GeoTIFF "${file.name}" foi selecionado. Como os rasters georreferenciados foram convertidos com sucesso para a pasta "rasters/", as camadas oficiais de Vulnerabilidade Ambiental já estão carregadas na categoria "Vulnerabilidade Ambiental"!`);
+        } else {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                try {
+                    const geojsonData = JSON.parse(event.target.result);
+                    const layerName = file.name.replace(/\.(geojson|json)$/i, '');
+                    addDynamicGeoJSONLayer(layerName, geojsonData);
+                } catch (err) {
+                    alert(`Erro ao ler o arquivo GeoJSON: ${err.message}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+    }
+
+    function addDynamicRasterLayer(name, dataUrl, bounds) {
+        const layerKey = `dyn_raster_${Date.now()}`;
+        const paneName = `${layerKey}Pane`;
+        if (!map.getPane(paneName)) {
+            map.createPane(paneName);
+            map.getPane(paneName).style.zIndex = 450;
+        }
+
+        const newLayer = L.imageOverlay(dataUrl, bounds, {
+            pane: paneName,
+            opacity: 0.75,
+            interactive: true
+        });
+
+        layersGroup[layerKey] = newLayer;
+        newLayer.addTo(map);
+
+        const dynCfg = {
+            id: layerKey,
+            name: `${name} (Raster)`,
+            type: 'raster',
+            active: true,
+            opacity: 0.75,
+            badge: 'Raster Upload'
         };
-        reader.readAsText(file);
+
+        let targetCat = document.querySelector('.layer-category-group[data-category-id="vulnerabilidade_ambiental"] .category-content');
+        if (!targetCat) {
+            targetCat = document.querySelector('.layer-category-group .category-content');
+        }
+
+        if (targetCat) {
+            const card = buildLayerCardElement(dynCfg);
+            targetCat.appendChild(card);
+            updateCategoryBadges();
+        }
+
+        map.fitBounds(bounds, { padding: [30, 30] });
     }
 
     const vibrantColors = ['#ec4899', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#ef4444', '#3b82f6'];
