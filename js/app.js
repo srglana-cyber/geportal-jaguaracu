@@ -759,7 +759,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tifUrl: 'TIF/relevo_sobreado.tif',
             badge: 'Relevo 3D',
             active: false,
-            opacity: 0.85,
+            opacity: 0,
             baseZIndex: 370,
             legend: {
                 type: 'relief',
@@ -966,7 +966,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tifUrl: 'TIF_2/relevo_sombreado.tif',
             badge: 'Relevo 3D',
             active: false,
-            opacity: 0.85,
+            opacity: 0,
             baseZIndex: 370,
             legend: {
                 type: 'relief',
