@@ -749,7 +749,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'raster_relevo_sombreado',
-            name: 'Relevo Sombreado 3D (Hillshade)',
+            name: 'Relevo Sombreado 3D (Hillshade - Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_relevo_sombreado.png',
             bounds: [
@@ -767,10 +767,10 @@ document.addEventListener('DOMContentLoaded', () => {
                 desc: 'Efeito tridimensional de iluminação solar sobre vertentes e fundos de vale da drenagem'
             }
         },
-        // --- Camadas Raster: Vulnerabilidade Ambiental (5 Classes Categorizadas) ---
+        // --- Camadas Raster: Vulnerabilidade Ambiental (Onça Grande) ---
         {
             id: 'raster_geomorfologia',
-            name: 'Vulnerabilidade do Relevo e Declividade',
+            name: 'Vulnerabilidade do Relevo e Declividade (Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_geomorfologia.png',
             bounds: [
@@ -796,7 +796,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'raster_perda_solos',
-            name: 'Perda de Solos / Erosão (USLE)',
+            name: 'Perda de Solos / Erosão - USLE (Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_perda_solos.png',
             bounds: [
@@ -822,7 +822,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'raster_pedologia',
-            name: 'Vulnerabilidade Pedológica (Solos)',
+            name: 'Vulnerabilidade Pedológica - Solos (Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_pedologia.png',
             bounds: [
@@ -848,7 +848,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'raster_geologia',
-            name: 'Vulnerabilidade Litológica (Geologia)',
+            name: 'Vulnerabilidade Litológica - Geologia (Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_geologia.png',
             bounds: [
@@ -874,7 +874,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'raster_vegetacao',
-            name: 'Vulnerabilidade da Cobertura Vegetal',
+            name: 'Vulnerabilidade da Cobertura Vegetal (Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_vegetacao.png',
             bounds: [
@@ -900,7 +900,7 @@ document.addEventListener('DOMContentLoaded', () => {
         },
         {
             id: 'raster_clima',
-            name: 'Vulnerabilidade Climática',
+            name: 'Vulnerabilidade Climática (Onça Grande)',
             type: 'raster',
             url: 'rasters/raster_clima.png',
             bounds: [
@@ -912,6 +912,224 @@ document.addEventListener('DOMContentLoaded', () => {
             active: false,
             opacity: 0.75,
             baseZIndex: 374,
+            legend: {
+                type: 'classes',
+                title: 'Vulnerabilidade Climática',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média (Índice 1.5)', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
+            }
+        },
+        // --- Camadas da Bacia do Ribeirão da Onça (TIF_2) ---
+        {
+            id: 'limite_bacia_onca',
+            name: 'Limite da Bacia do Ribeirão da Onça',
+            varName: 'GEO_DATA_limite_bacia_onca',
+            badge: 'Bacia',
+            geomType: 'polygon',
+            active: false,
+            style: { color: '#c2410c', weight: 2.8, dashArray: '6, 4', fill: false, opacity: 0.95 },
+            baseZIndex: 420
+        },
+        {
+            id: 'hidrografia_onca',
+            name: 'Drenagem e Rede Hidrográfica (Ribeirão da Onça)',
+            varName: 'GEO_DATA_hidrografia_onca',
+            badge: 'Drenagem 3D',
+            geomType: 'line',
+            active: false,
+            style: { color: '#0284c7', weight: 2.2, opacity: 0.95 },
+            customStyler: (feature) => {
+                const props = feature.properties || {};
+                const ordem = props.nuordemcda || props.nuordem || props.nustrahler || props.ORDEM || 1;
+                return {
+                    color: ordem >= 3 ? '#0369a1' : (ordem === 2 ? '#0284c7' : '#38bdf8'),
+                    weight: ordem >= 3 ? 3.8 : (ordem === 2 ? 2.6 : 1.8),
+                    opacity: 0.95
+                };
+            },
+            baseZIndex: 495
+        },
+        {
+            id: 'raster_onca_relevo_sombreado',
+            name: 'Relevo Sombreado 3D (Hillshade - Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/relevo_sombreado.png',
+            bounds: [
+                [-19.8204167, -42.8179167],
+                [-19.6151389, -42.7481945]
+            ],
+            tifUrl: 'TIF_2/relevo_sombreado.tif',
+            badge: 'Relevo 3D',
+            active: false,
+            opacity: 0.85,
+            baseZIndex: 370,
+            legend: {
+                type: 'relief',
+                title: 'Relevo Sombreado 3D (Hillshade - Onça)',
+                desc: 'Efeito tridimensional de iluminação sobre as vertentes da bacia do Ribeirão da Onça'
+            }
+        },
+        {
+            id: 'raster_onca_geomorfologia',
+            name: 'Vulnerabilidade do Relevo e Declividade (Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/geomorfologia.png',
+            bounds: [
+                [-19.8203968, -42.8179508],
+                [-19.6151584, -42.7483693]
+            ],
+            tifUrl: 'TIF_2/geomorfologia.tif',
+            badge: 'Declividade',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 375,
+            legend: {
+                type: 'classes',
+                title: 'Vulnerabilidade do Relevo e Declividade',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
+            }
+        },
+        {
+            id: 'raster_onca_perda_solos',
+            name: 'Perda de Solos / Erosão - USLE (Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/perda_solos.png',
+            bounds: [
+                [-19.8203666, -42.8179267],
+                [-19.6152506, -42.7483197]
+            ],
+            tifUrl: 'TIF_2/perda_solos.tif',
+            badge: 'Erosão',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 376,
+            legend: {
+                type: 'classes',
+                title: 'Perda Estimada de Solos (t/ha.ano)',
+                classes: [
+                    { label: 'Muito baixa (15.0 - 16.8)', color: '#1C9440' },
+                    { label: 'Baixa (16.8 - 18.6)', color: '#A7D96A' },
+                    { label: 'Média (18.6 - 20.4)', color: '#FFFFC2' },
+                    { label: 'Alta (20.4 - 22.2)', color: '#FCAD62' },
+                    { label: 'Muito Alta (22.2 - 24.0)', color: '#D41919' }
+                ]
+            }
+        },
+        {
+            id: 'raster_onca_pedologia',
+            name: 'Vulnerabilidade Pedológica - Solos (Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/pedologia.png',
+            bounds: [
+                [-19.8205106, -42.8179339],
+                [-19.6152201, -42.7482432]
+            ],
+            tifUrl: 'TIF_2/pedologia.tif',
+            badge: 'Solos',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 377,
+            legend: {
+                type: 'classes',
+                title: 'Vulnerabilidade Pedológica',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
+            }
+        },
+        {
+            id: 'raster_onca_geologia',
+            name: 'Vulnerabilidade Litológica - Geologia (Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/geologia.png',
+            bounds: [
+                [-19.8203904, -42.8178110],
+                [-19.6151041, -42.7481218]
+            ],
+            tifUrl: 'TIF_2/geologia.tif',
+            badge: 'Geologia',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 378,
+            legend: {
+                type: 'classes',
+                title: 'Vulnerabilidade Litológica',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
+            }
+        },
+        {
+            id: 'raster_onca_vegetacao',
+            name: 'Vulnerabilidade da Cobertura Vegetal (Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/vegetacao.png',
+            bounds: [
+                [-19.8205106, -42.8179339],
+                [-19.6152201, -42.7482432]
+            ],
+            tifUrl: 'TIF_2/vegetacao.tif',
+            badge: 'Vegetação',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 379,
+            legend: {
+                type: 'classes',
+                title: 'Vulnerabilidade da Vegetação e Uso da Terra',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
+            }
+        },
+        {
+            id: 'raster_onca_clima',
+            name: 'Vulnerabilidade Climática (Ribeirão da Onça)',
+            type: 'raster',
+            url: 'rasters_onca/clima.png',
+            bounds: [
+                [-19.8193280, -42.8146766],
+                [-19.6188126, -42.7493925]
+            ],
+            tifUrl: 'TIF_2/clima.tif',
+            badge: 'Clima',
+            active: false,
+            opacity: 0.75,
+            baseZIndex: 374,
+            legend: {
+                type: 'classes',
+                title: 'Vulnerabilidade Climática',
+                classes: [
+                    { label: 'Muito baixa', color: '#1C9440' },
+                    { label: 'Baixa', color: '#A7D96A' },
+                    { label: 'Média (Índice 1.5)', color: '#FFFFC2' },
+                    { label: 'Alta', color: '#FCAD62' },
+                    { label: 'Muito Alta', color: '#D41919' }
+                ]
+            }
+        },
             legend: {
                 type: 'classes',
                 title: 'Vulnerabilidade Climática Regional',
@@ -1170,6 +1388,40 @@ document.addEventListener('DOMContentLoaded', () => {
             color: '#b91c1c',
             bgLight: '#fef2f2',
             border: '#f87171',
+            subcategories: [
+                {
+                    title: 'Bacia do Ribeirão Onça Grande',
+                    subtitle: 'Estudo publicado na Revista Cerrados (Morais et al., 2026)',
+                    articleCard: true,
+                    layers: [
+                        'limite_onca_grande',
+                        'hidrografia_2',
+                        'raster_relevo_sombreado',
+                        'raster_geomorfologia',
+                        'raster_perda_solos',
+                        'raster_pedologia',
+                        'raster_geologia',
+                        'raster_vegetacao',
+                        'raster_clima'
+                    ]
+                },
+                {
+                    title: 'Bacia do Ribeirão da Onça',
+                    subtitle: 'Modelagem ecodinâmica e análise ambiental da sub-bacia',
+                    articleCard: false,
+                    layers: [
+                        'limite_bacia_onca',
+                        'hidrografia_onca',
+                        'raster_onca_relevo_sombreado',
+                        'raster_onca_geomorfologia',
+                        'raster_onca_perda_solos',
+                        'raster_onca_pedologia',
+                        'raster_onca_geologia',
+                        'raster_onca_vegetacao',
+                        'raster_onca_clima'
+                    ]
+                }
+            ],
             layers: [
                 'limite_onca_grande',
                 'hidrografia_2',
@@ -1179,7 +1431,16 @@ document.addEventListener('DOMContentLoaded', () => {
                 'raster_pedologia',
                 'raster_geologia',
                 'raster_vegetacao',
-                'raster_clima'
+                'raster_clima',
+                'limite_bacia_onca',
+                'hidrografia_onca',
+                'raster_onca_relevo_sombreado',
+                'raster_onca_geomorfologia',
+                'raster_onca_perda_solos',
+                'raster_onca_pedologia',
+                'raster_onca_geologia',
+                'raster_onca_vegetacao',
+                'raster_onca_clima'
             ]
         },
         {
@@ -1475,42 +1736,82 @@ document.addEventListener('DOMContentLoaded', () => {
             const contentEl = document.createElement('div');
             contentEl.className = 'category-content';
 
-            // Card informativo do artigo científico para a categoria Vulnerabilidade Ambiental
-            if (cat.id === 'vulnerabilidade_ambiental') {
-                const articleCard = document.createElement('div');
-                articleCard.className = 'category-article-card';
-                articleCard.innerHTML = `
-                    <div class="category-article-card-header">
-                        <span class="category-article-tag">
-                            <i class="fas fa-certificate"></i> Artigo Publicado
-                        </span>
-                        <span style="font-size: 0.65rem; color: #991b1b; font-weight: 600;">Revista Cerrados 2026</span>
-                    </div>
-                    <div class="category-article-card-title">
-                        Vulnerabilidade ambiental à perda de solos na bacia do ribeirão Onça Grande
-                    </div>
-                    <div style="font-size: 0.66rem; color: #64748b;">
-                        <b>Autores:</b> Sérgio Lana Morais, Dirley dos Santos Vaz e Gilmar Vitalino Dias
-                    </div>
-                    <div class="category-article-actions">
-                        <button type="button" class="btn-category-article primary" id="btn-open-article-info" title="Ver detalhes metodológicos e resultados">
-                            <i class="fas fa-circle-info"></i> Metodologia & Estudo
-                        </button>
-                        <a href="https://www.periodicos.unimontes.br/cerrados/article/view/10592" target="_blank" rel="noopener noreferrer" class="btn-category-article secondary" title="Abrir artigo na Revista Cerrados">
-                            <i class="fas fa-file-pdf"></i> Artigo / PDF
-                        </a>
-                    </div>
-                `;
-                contentEl.appendChild(articleCard);
-            }
+            if (cat.subcategories && cat.subcategories.length > 0) {
+                cat.subcategories.forEach(sub => {
+                    const subGroup = document.createElement('div');
+                    subGroup.className = 'layer-subcategory-group';
+                    subGroup.style.marginBottom = '12px';
+                    subGroup.style.padding = '8px 10px';
+                    subGroup.style.background = '#ffffff';
+                    subGroup.style.border = '1px solid #f1f5f9';
+                    subGroup.style.borderRadius = '8px';
+                    subGroup.style.boxShadow = '0 1px 3px rgba(0,0,0,0.03)';
 
-            cat.layers.forEach(layerId => {
-                const cfg = LAYERS_CONFIG.find(c => c.id === layerId);
-                if (cfg) {
-                    const card = buildLayerCardElement(cfg);
-                    contentEl.appendChild(card);
-                }
-            });
+                    const subHeader = document.createElement('div');
+                    subHeader.style.display = 'flex';
+                    subHeader.style.alignItems = 'center';
+                    subHeader.style.justifyContent = 'space-between';
+                    subHeader.style.marginBottom = '8px';
+                    subHeader.style.paddingBottom = '4px';
+                    subHeader.style.borderBottom = '1.5px solid #fecaca';
+
+                    subHeader.innerHTML = `
+                        <div>
+                            <span style="font-size: 0.76rem; font-weight: 700; color: #991b1b; display: flex; align-items: center; gap: 6px;">
+                                <i class="fas fa-water" style="color: #b91c1c;"></i> ${sub.title}
+                            </span>
+                            ${sub.subtitle ? `<span style="font-size: 0.65rem; color: #64748b;">${sub.subtitle}</span>` : ''}
+                        </div>
+                    `;
+                    subGroup.appendChild(subHeader);
+
+                    if (sub.articleCard) {
+                        const articleCard = document.createElement('div');
+                        articleCard.className = 'category-article-card';
+                        articleCard.innerHTML = `
+                            <div class="category-article-card-header">
+                                <span class="category-article-tag">
+                                    <i class="fas fa-certificate"></i> Artigo Publicado
+                                </span>
+                                <span style="font-size: 0.65rem; color: #991b1b; font-weight: 600;">Revista Cerrados 2026</span>
+                            </div>
+                            <div class="category-article-card-title">
+                                Vulnerabilidade ambiental à perda de solos na bacia do ribeirão Onça Grande
+                            </div>
+                            <div style="font-size: 0.66rem; color: #64748b;">
+                                <b>Autores:</b> Sérgio Lana Morais, Dirley dos Santos Vaz e Gilmar Vitalino Dias
+                            </div>
+                            <div class="category-article-actions">
+                                <button type="button" class="btn-category-article primary" id="btn-open-article-info" title="Ver detalhes metodológicos e resultados">
+                                    <i class="fas fa-circle-info"></i> Metodologia & Estudo
+                                </button>
+                                <a href="https://www.periodicos.unimontes.br/cerrados/article/view/10592" target="_blank" rel="noopener noreferrer" class="btn-category-article secondary" title="Abrir artigo na Revista Cerrados">
+                                    <i class="fas fa-file-pdf"></i> Artigo / PDF
+                                </a>
+                            </div>
+                        `;
+                        subGroup.appendChild(articleCard);
+                    }
+
+                    sub.layers.forEach(layerId => {
+                        const cfg = LAYERS_CONFIG.find(c => c.id === layerId);
+                        if (cfg) {
+                            const card = buildLayerCardElement(cfg);
+                            subGroup.appendChild(card);
+                        }
+                    });
+
+                    contentEl.appendChild(subGroup);
+                });
+            } else {
+                cat.layers.forEach(layerId => {
+                    const cfg = LAYERS_CONFIG.find(c => c.id === layerId);
+                    if (cfg) {
+                        const card = buildLayerCardElement(cfg);
+                        contentEl.appendChild(card);
+                    }
+                });
+            }
 
             // Toggle acordeão ao clicar no cabeçalho
             headerEl.addEventListener('click', () => {
@@ -1827,8 +2128,8 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 // Sincronização automática da camada de Relevo Sombreado 3D (Hillshade):
-                // Ativa o Relevo 3D quando qualquer uma das camadas morfopedológicas/litológicas/uso do solo for ligada
-                const triggerLayers = [
+                // Bacia do Onça Grande
+                const triggerLayersOncaGrande = [
                     'raster_geomorfologia',
                     'raster_perda_solos',
                     'raster_pedologia',
@@ -1836,12 +2137,12 @@ document.addEventListener('DOMContentLoaded', () => {
                     'raster_vegetacao'
                 ];
 
-                if (triggerLayers.includes(layerKey)) {
+                if (triggerLayersOncaGrande.includes(layerKey)) {
                     const hillshadeLayer = layersGroup['raster_relevo_sombreado'];
                     const hillshadeChk = document.querySelector('.layer-toggle[data-layer="raster_relevo_sombreado"]');
 
                     if (hillshadeLayer) {
-                        const hasAnyTriggerActive = triggerLayers.some(id => {
+                        const hasAnyTriggerActive = triggerLayersOncaGrande.some(id => {
                             const chk = document.querySelector(`.layer-toggle[data-layer="${id}"]`);
                             return chk && chk.checked;
                         });
@@ -1856,6 +2157,39 @@ document.addEventListener('DOMContentLoaded', () => {
                                 map.removeLayer(hillshadeLayer);
                             }
                             if (hillshadeChk) hillshadeChk.checked = false;
+                        }
+                    }
+                }
+
+                // Bacia do Ribeirão da Onça
+                const triggerLayersOnca = [
+                    'raster_onca_geomorfologia',
+                    'raster_onca_perda_solos',
+                    'raster_onca_pedologia',
+                    'raster_onca_geologia',
+                    'raster_onca_vegetacao'
+                ];
+
+                if (triggerLayersOnca.includes(layerKey)) {
+                    const hillshadeLayerOnca = layersGroup['raster_onca_relevo_sombreado'];
+                    const hillshadeChkOnca = document.querySelector('.layer-toggle[data-layer="raster_onca_relevo_sombreado"]');
+
+                    if (hillshadeLayerOnca) {
+                        const hasAnyTriggerActive = triggerLayersOnca.some(id => {
+                            const chk = document.querySelector(`.layer-toggle[data-layer="${id}"]`);
+                            return chk && chk.checked;
+                        });
+
+                        if (hasAnyTriggerActive) {
+                            if (!map.hasLayer(hillshadeLayerOnca)) {
+                                map.addLayer(hillshadeLayerOnca);
+                            }
+                            if (hillshadeChkOnca) hillshadeChkOnca.checked = true;
+                        } else {
+                            if (map.hasLayer(hillshadeLayerOnca)) {
+                                map.removeLayer(hillshadeLayerOnca);
+                            }
+                            if (hillshadeChkOnca) hillshadeChkOnca.checked = false;
                         }
                     }
                 }
