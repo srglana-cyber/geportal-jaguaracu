@@ -724,7 +724,7 @@ document.addEventListener('DOMContentLoaded', () => {
             varName: 'GEO_DATA_limite_onca_grande',
             badge: 'Bacia',
             geomType: 'polygon',
-            active: true,
+            active: false,
             style: { color: '#b91c1c', weight: 2.8, dashArray: '6, 4', fill: false, opacity: 0.95 },
             baseZIndex: 420
         },
@@ -734,7 +734,7 @@ document.addEventListener('DOMContentLoaded', () => {
             varName: 'GEO_DATA_hidrografia_2',
             badge: 'Drenagem 3D',
             geomType: 'line',
-            active: true,
+            active: false,
             style: { color: '#0284c7', weight: 2.2, opacity: 0.95 },
             customStyler: (feature) => {
                 const props = feature.properties || {};
