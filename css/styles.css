@@ -1535,9 +1535,351 @@ a.author-credit-link:hover .author-credit-box {
         transform: translateY(0);
     }
 
-    .inspector-touch-handle {
-        display: block;
-    }
 }
+
+/* ==========================================================================
+   Modal do Artigo Científico / Metodologia da Bacia do Ribeirão Onça Grande
+   ========================================================================== */
+.modal-backdrop {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    background: rgba(15, 23, 42, 0.65);
+    backdrop-filter: blur(4px);
+    z-index: 2000;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.25s ease, visibility 0.25s ease;
+}
+
+.modal-backdrop.active {
+    opacity: 1;
+    visibility: visible;
+}
+
+.modal-window {
+    background: #ffffff;
+    width: 100%;
+    max-width: 680px;
+    max-height: 90vh;
+    border-radius: 14px;
+    box-shadow: 0 20px 40px -15px rgba(0, 0, 0, 0.35);
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    transform: scale(0.95) translateY(10px);
+    transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    border: 1px solid #e2e8f0;
+}
+
+.modal-backdrop.active .modal-window {
+    transform: scale(1) translateY(0);
+}
+
+.modal-header {
+    background: linear-gradient(135deg, #991b1b 0%, #b91c1c 100%);
+    color: #ffffff;
+    padding: 16px 20px;
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 12px;
+}
+
+.modal-title-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.modal-title-icon {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    flex-shrink: 0;
+}
+
+.modal-header-text h3 {
+    margin: 0;
+    font-size: 1.05rem;
+    font-weight: 700;
+    color: #ffffff;
+    line-height: 1.3;
+}
+
+.modal-header-text span {
+    font-size: 0.75rem;
+    color: #fecaca;
+    font-weight: 500;
+}
+
+.btn-modal-close {
+    background: rgba(255, 255, 255, 0.15);
+    border: none;
+    color: #ffffff;
+    width: 32px;
+    height: 32px;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s ease;
+    flex-shrink: 0;
+}
+
+.btn-modal-close:hover {
+    background: rgba(255, 255, 255, 0.3);
+}
+
+.modal-body {
+    padding: 20px;
+    overflow-y: auto;
+    font-size: 0.86rem;
+    color: #334155;
+    line-height: 1.55;
+}
+
+.article-meta-badge-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.article-badge {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    padding: 4px 8px;
+    border-radius: 6px;
+    font-weight: 600;
+}
+
+.article-badge.journal {
+    background: #fef2f2;
+    color: #991b1b;
+    border: 1px solid #fecaca;
+}
+
+.article-badge.doi {
+    background: #eff6ff;
+    color: #1d4ed8;
+    border: 1px solid #bfdbfe;
+    text-decoration: none;
+}
+
+.article-badge.doi:hover {
+    background: #dbeafe;
+}
+
+.article-title-highlight {
+    font-size: 1rem;
+    font-weight: 700;
+    color: #0f172a;
+    line-height: 1.4;
+    margin-bottom: 6px;
+}
+
+.article-authors {
+    font-size: 0.8rem;
+    color: #64748b;
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.article-section-title {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    font-weight: 700;
+    color: #991b1b;
+    margin-top: 14px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.article-stats-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 8px;
+    margin: 12px 0 16px 0;
+}
+
+.article-stat-card {
+    background: #f8fafc;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    padding: 10px;
+    text-align: center;
+}
+
+.article-stat-card .stat-val {
+    font-size: 1.15rem;
+    font-weight: 800;
+    color: #b91c1c;
+}
+
+.article-stat-card .stat-desc {
+    font-size: 0.68rem;
+    color: #64748b;
+    font-weight: 600;
+    margin-top: 2px;
+}
+
+.article-citation-box {
+    background: #f1f5f9;
+    border-left: 4px solid #b91c1c;
+    padding: 10px 12px;
+    border-radius: 4px;
+    font-size: 0.76rem;
+    color: #1e293b;
+    margin-top: 10px;
+    position: relative;
+    user-select: all;
+    line-height: 1.45;
+}
+
+.modal-footer {
+    padding: 12px 20px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+}
+
+.btn-open-article {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #b91c1c;
+    color: #ffffff;
+    text-decoration: none;
+    padding: 8px 14px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    transition: background 0.2s ease;
+}
+
+.btn-open-article:hover {
+    background: #991b1b;
+}
+
+.btn-copy-citation {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    color: #334155;
+    border: 1px solid #cbd5e1;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 0.8rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.btn-copy-citation:hover {
+    background: #f1f5f9;
+    border-color: #94a3b8;
+}
+
+/* Card compacto do artigo na categoria de camadas */
+.category-article-card {
+    background: linear-gradient(135deg, #fff1f2 0%, #fef2f2 100%);
+    border: 1px solid #fecaca;
+    border-radius: 8px;
+    padding: 10px 12px;
+    margin-bottom: 10px;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.category-article-card-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+}
+
+.category-article-tag {
+    font-size: 0.65rem;
+    font-weight: 700;
+    color: #b91c1c;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+}
+
+.category-article-card-title {
+    font-size: 0.74rem;
+    font-weight: 700;
+    color: #881337;
+    line-height: 1.35;
+}
+
+.category-article-actions {
+    display: flex;
+    gap: 6px;
+    margin-top: 4px;
+}
+
+.btn-category-article {
+    flex: 1;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 5px 8px;
+    border-radius: 5px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    text-decoration: none;
+    cursor: pointer;
+    border: none;
+    transition: all 0.2s ease;
+}
+
+.btn-category-article.primary {
+    background: #b91c1c;
+    color: #ffffff;
+}
+
+.btn-category-article.primary:hover {
+    background: #991b1b;
+}
+
+.btn-category-article.secondary {
+    background: #ffffff;
+    color: #b91c1c;
+    border: 1px solid #fca5a5;
+}
+
+.btn-category-article.secondary:hover {
+    background: #fee2e2;
+}
+
 
 

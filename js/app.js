@@ -758,7 +758,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ],
             tifUrl: 'TIF/relevo_sobreado.tif',
             badge: 'Relevo 3D',
-            active: true,
+            active: false,
             opacity: 0.85,
             baseZIndex: 370,
             legend: {
@@ -1475,6 +1475,35 @@ document.addEventListener('DOMContentLoaded', () => {
             const contentEl = document.createElement('div');
             contentEl.className = 'category-content';
 
+            // Card informativo do artigo científico para a categoria Vulnerabilidade Ambiental
+            if (cat.id === 'vulnerabilidade_ambiental') {
+                const articleCard = document.createElement('div');
+                articleCard.className = 'category-article-card';
+                articleCard.innerHTML = `
+                    <div class="category-article-card-header">
+                        <span class="category-article-tag">
+                            <i class="fas fa-certificate"></i> Artigo Publicado
+                        </span>
+                        <span style="font-size: 0.65rem; color: #991b1b; font-weight: 600;">Revista Cerrados 2026</span>
+                    </div>
+                    <div class="category-article-card-title">
+                        Vulnerabilidade ambiental à perda de solos na bacia do ribeirão Onça Grande
+                    </div>
+                    <div style="font-size: 0.66rem; color: #64748b;">
+                        <b>Autores:</b> Sérgio Lana Morais, Dirley dos Santos Vaz e Gilmar Vitalino Dias
+                    </div>
+                    <div class="category-article-actions">
+                        <button type="button" class="btn-category-article primary" id="btn-open-article-info" title="Ver detalhes metodológicos e resultados">
+                            <i class="fas fa-circle-info"></i> Metodologia & Estudo
+                        </button>
+                        <a href="https://www.periodicos.unimontes.br/cerrados/article/view/10592" target="_blank" rel="noopener noreferrer" class="btn-category-article secondary" title="Abrir artigo na Revista Cerrados">
+                            <i class="fas fa-file-pdf"></i> Artigo / PDF
+                        </a>
+                    </div>
+                `;
+                contentEl.appendChild(articleCard);
+            }
+
             cat.layers.forEach(layerId => {
                 const cfg = LAYERS_CONFIG.find(c => c.id === layerId);
                 if (cfg) {
@@ -1796,6 +1825,41 @@ document.addEventListener('DOMContentLoaded', () => {
                         if (btnToggle) btnToggle.style.background = '#f1f5f9';
                     }
                 }
+
+                // Sincronização automática da camada de Relevo Sombreado 3D (Hillshade):
+                // Ativa o Relevo 3D quando qualquer uma das camadas morfopedológicas/litológicas/uso do solo for ligada
+                const triggerLayers = [
+                    'raster_geomorfologia',
+                    'raster_perda_solos',
+                    'raster_pedologia',
+                    'raster_geologia',
+                    'raster_vegetacao'
+                ];
+
+                if (triggerLayers.includes(layerKey)) {
+                    const hillshadeLayer = layersGroup['raster_relevo_sombreado'];
+                    const hillshadeChk = document.querySelector('.layer-toggle[data-layer="raster_relevo_sombreado"]');
+
+                    if (hillshadeLayer) {
+                        const hasAnyTriggerActive = triggerLayers.some(id => {
+                            const chk = document.querySelector(`.layer-toggle[data-layer="${id}"]`);
+                            return chk && chk.checked;
+                        });
+
+                        if (hasAnyTriggerActive) {
+                            if (!map.hasLayer(hillshadeLayer)) {
+                                map.addLayer(hillshadeLayer);
+                            }
+                            if (hillshadeChk) hillshadeChk.checked = true;
+                        } else {
+                            if (map.hasLayer(hillshadeLayer)) {
+                                map.removeLayer(hillshadeLayer);
+                            }
+                            if (hillshadeChk) hillshadeChk.checked = false;
+                        }
+                    }
+                }
+
                 renderDynamicLegend();
                 updateCategoryBadges();
             }
@@ -2561,6 +2625,53 @@ document.addEventListener('DOMContentLoaded', () => {
         fitMunicipio(false);
     }, 300);
     setTimeout(() => fitMunicipio(false), 600);
+
+    // Modal do Artigo Científico (Bacia do Ribeirão Onça Grande)
+    const modalArticle = document.getElementById('modal-article-onca');
+    const btnCloseArticleModal = document.getElementById('btn-close-article-modal');
+    const btnCopyCitation = document.getElementById('btn-copy-citation');
+
+    function openArticleModal() {
+        if (modalArticle) modalArticle.classList.add('active');
+    }
+
+    function closeArticleModal() {
+        if (modalArticle) modalArticle.classList.remove('active');
+    }
+
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#btn-open-article-info')) {
+            openArticleModal();
+        }
+    });
+
+    if (btnCloseArticleModal) {
+        btnCloseArticleModal.addEventListener('click', closeArticleModal);
+    }
+
+    if (modalArticle) {
+        modalArticle.addEventListener('click', (e) => {
+            if (e.target === modalArticle) closeArticleModal();
+        });
+    }
+
+    if (btnCopyCitation) {
+        btnCopyCitation.addEventListener('click', () => {
+            const citationEl = document.getElementById('article-citation-text');
+            if (citationEl) {
+                const text = citationEl.innerText.trim();
+                navigator.clipboard.writeText(text).then(() => {
+                    const originalHtml = btnCopyCitation.innerHTML;
+                    btnCopyCitation.innerHTML = '<i class="fas fa-check" style="color: #16a34a;"></i> Copiado!';
+                    setTimeout(() => {
+                        btnCopyCitation.innerHTML = originalHtml;
+                    }, 2500);
+                }).catch(() => {
+                    alert('Citação selecionada. Pressione Ctrl+C para copiar.');
+                });
+            }
+        });
+    }
 
     window.addEventListener('resize', () => {
         updateSidebarUI();

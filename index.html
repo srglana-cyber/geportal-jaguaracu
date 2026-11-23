@@ -379,6 +379,91 @@
         </div>
     </div>
 
+    <!-- Modal Científico: Artigo & Metodologia da Bacia do Ribeirão Onça Grande -->
+    <div id="modal-article-onca" class="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-article-title">
+        <div class="modal-window">
+            <div class="modal-header">
+                <div class="modal-title-group">
+                    <div class="modal-title-icon">
+                        <i class="fas fa-book-open"></i>
+                    </div>
+                    <div class="modal-header-text">
+                        <h3 id="modal-article-title">Referência Científica do Estudo</h3>
+                        <span>Bacia Hidrográfica do Ribeirão Onça Grande • Jaguaraçu/MG</span>
+                    </div>
+                </div>
+                <button type="button" id="btn-close-article-modal" class="btn-modal-close" title="Fechar janela">
+                    <i class="fas fa-xmark"></i>
+                </button>
+            </div>
+            <div class="modal-body">
+                <div class="article-meta-badge-group">
+                    <span class="article-badge journal">
+                        <i class="fas fa-newspaper"></i> Revista Cerrados (Unimontes) • v. 24, n. 02, 2026
+                    </span>
+                    <a href="https://doi.org/10.46551/rc24482692202638" target="_blank" rel="noopener noreferrer" class="article-badge doi" title="Abrir link DOI permanente">
+                        <i class="fas fa-link"></i> DOI: 10.46551/rc24482692202638
+                    </a>
+                </div>
+
+                <div class="article-title-highlight">
+                    Vulnerabilidade ambiental à perda de solos em uma sub-bacia hidrográfica do rio Piracicaba, leste de Minas Gerais
+                </div>
+                <div class="article-authors">
+                    <i class="fas fa-users" style="color: #991b1b;"></i> 
+                    <b>Autores:</b> Sérgio Lana Morais, Dirley dos Santos Vaz, Gilmar Vitalino Dias
+                </div>
+
+                <div class="article-section-title">
+                    <i class="fas fa-chart-pie"></i> Resultados na Sub-Bacia do Onça Grande
+                </div>
+                <div class="article-stats-grid">
+                    <div class="article-stat-card">
+                        <div class="stat-val">33,5%</div>
+                        <div class="stat-desc">Vulnerabilidade Média (Predominante)</div>
+                    </div>
+                    <div class="article-stat-card">
+                        <div class="stat-val">28,2%</div>
+                        <div class="stat-desc">Alta & Muito Alta (Declives/Agropecuária)</div>
+                    </div>
+                    <div class="article-stat-card">
+                        <div class="stat-val">38,3%</div>
+                        <div class="stat-desc">Baixa & Muito Baixa (Florestas/Relevo Suave)</div>
+                    </div>
+                </div>
+
+                <div class="article-section-title">
+                    <i class="fas fa-layer-group"></i> Fundamentação Metodológica (SIG & Ecodinâmica)
+                </div>
+                <p style="margin-top: 4px; margin-bottom: 8px;">
+                    As camadas apresentadas nesta seção são produtos cartográficos derivados da modelagem espacial segundo os preceitos ecodinâmicos de <b>Crepani et al. (2001)</b>. O método analisa o balanço morfogênese/pedogênese integrando algebra de mapas ponderada de cinco componentes ambientais essenciais:
+                </p>
+                <ul style="padding-left: 20px; margin-bottom: 12px; font-size: 0.82rem; color: #475569;">
+                    <li><b>Relevo e Declividade (Geomorfologia):</b> Fator de aceleração do escoamento superficial gerado a partir do MDE e relevo sombreado 3D.</li>
+                    <li><b>Perda de Solos / Erosão (USLE):</b> Estimativa de erodibilidade e perda hídrica de horizontes superficiais.</li>
+                    <li><b>Vulnerabilidade Pedológica (Solos):</b> Suscetibilidade inerente de Latossolos, Argissolos e Cambissolos.</li>
+                    <li><b>Vulnerabilidade Litológica (Geologia):</b> Resistência mecânica e intempérica do substrato rochoso.</li>
+                    <li><b>Uso e Cobertura Vegetal:</b> Proteção superficial oferecida por remanescentes de Mata Atlântica vs. pastagens e silvicultura.</li>
+                </ul>
+
+                <div class="article-section-title">
+                    <i class="fas fa-quote-right"></i> Citação Bibliográfica Recomendada (ABNT)
+                </div>
+                <div class="article-citation-box" id="article-citation-text">
+MORAIS, S. L.; VAZ, D. dos S.; DIAS, G. V. Vulnerabilidade ambiental à perda de solos em uma sub-bacia hidrográfica do rio Piracicaba, leste de Minas Gerais. <b>Revista Cerrados</b>, Montes Claros, v. 24, n. 02, p. 568-592, 2026. DOI: 10.46551/rc24482692202638.
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" id="btn-copy-citation" class="btn-copy-citation" title="Copiar citação formatada">
+                    <i class="fas fa-copy"></i> Copiar Citação
+                </button>
+                <a href="https://www.periodicos.unimontes.br/cerrados/article/view/10592" target="_blank" rel="noopener noreferrer" class="btn-open-article" title="Acessar artigo completo e PDF na Revista Cerrados">
+                    <i class="fas fa-arrow-up-right-from-square"></i> Acessar Artigo / PDF
+                </a>
+            </div>
+        </div>
+    </div>
+
     <!-- Leaflet JS CDN -->
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
