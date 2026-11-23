@@ -1120,18 +1120,6 @@ document.addEventListener('DOMContentLoaded', () => {
             baseZIndex: 374,
             legend: {
                 type: 'classes',
-                title: 'Vulnerabilidade Climática',
-                classes: [
-                    { label: 'Muito baixa', color: '#1C9440' },
-                    { label: 'Baixa', color: '#A7D96A' },
-                    { label: 'Média (Índice 1.5)', color: '#FFFFC2' },
-                    { label: 'Alta', color: '#FCAD62' },
-                    { label: 'Muito Alta', color: '#D41919' }
-                ]
-            }
-        },
-            legend: {
-                type: 'classes',
                 title: 'Vulnerabilidade Climática Regional',
                 classes: [
                     { label: 'Muito baixa', color: '#1C9440' },
