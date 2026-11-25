@@ -19,6 +19,14 @@ document.addEventListener('DOMContentLoaded', () => {
     // Controle de zoom no canto superior direito
     L.control.zoom({ position: 'topright' }).addTo(map);
 
+    // Escala gráfica dinâmica métrica no canto inferior esquerdo
+    L.control.scale({
+        position: 'bottomleft',
+        metric: true,
+        imperial: false,
+        maxWidth: 150
+    }).addTo(map);
+
     // --------------------------------------------------------------------------
     // 2. Mapas de Fundo (Basemaps)
     // --------------------------------------------------------------------------
@@ -759,7 +767,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tifUrl: 'TIF/relevo_sobreado.tif',
             badge: 'Relevo 3D',
             active: false,
-            opacity: 0,
+            opacity: 0.20,
             baseZIndex: 370,
             legend: {
                 type: 'relief',
@@ -966,7 +974,7 @@ document.addEventListener('DOMContentLoaded', () => {
             tifUrl: 'TIF_2/relevo_sombreado.tif',
             badge: 'Relevo 3D',
             active: false,
-            opacity: 0,
+            opacity: 0.20,
             baseZIndex: 370,
             legend: {
                 type: 'relief',
@@ -2137,9 +2145,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (hasAnyTriggerActive) {
                             if (!map.hasLayer(hillshadeLayer)) {
+                                if (hillshadeLayer.setOpacity) hillshadeLayer.setOpacity(0.20);
                                 map.addLayer(hillshadeLayer);
                             }
                             if (hillshadeChk) hillshadeChk.checked = true;
+                            const slider = document.querySelector('.opacity-slider[data-layer="raster_relevo_sombreado"]');
+                            if (slider) slider.value = 0.20;
                         } else {
                             if (map.hasLayer(hillshadeLayer)) {
                                 map.removeLayer(hillshadeLayer);
@@ -2170,9 +2181,12 @@ document.addEventListener('DOMContentLoaded', () => {
 
                         if (hasAnyTriggerActive) {
                             if (!map.hasLayer(hillshadeLayerOnca)) {
+                                if (hillshadeLayerOnca.setOpacity) hillshadeLayerOnca.setOpacity(0.20);
                                 map.addLayer(hillshadeLayerOnca);
                             }
                             if (hillshadeChkOnca) hillshadeChkOnca.checked = true;
+                            const sliderOnca = document.querySelector('.opacity-slider[data-layer="raster_onca_relevo_sombreado"]');
+                            if (sliderOnca) sliderOnca.value = 0.20;
                         } else {
                             if (map.hasLayer(hillshadeLayerOnca)) {
                                 map.removeLayer(hillshadeLayerOnca);
