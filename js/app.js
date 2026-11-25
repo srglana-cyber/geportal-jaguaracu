@@ -1710,7 +1710,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         LAYER_CATEGORIES.forEach(cat => {
             const groupEl = document.createElement('div');
-            groupEl.className = 'layer-category-group';
+            groupEl.className = 'layer-category-group collapsed';
             groupEl.setAttribute('data-category-id', cat.id);
             groupEl.style.borderLeft = `5px solid ${cat.color}`;
 
